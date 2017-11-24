@@ -142,6 +142,7 @@
     <Compile Include="Models\ProfessorModel.cs" />
     <Compile Include="Models\Reserva.cs" />
     <Compile Include="Models\Sala.cs" />
+    <Compile Include="Models\SalaModel.cs" />
     <Compile Include="Models\Turma.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

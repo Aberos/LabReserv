@@ -6,7 +6,7 @@
 
 <h1>Reservas</h1>
 
-<button class="btn btn-default" style="position: absolute; margin-top: -3%; right: 10px;"><i class="fa fa-plus" aria-hidden="true"></i> Reserva</button>
+<button class="btn btn-default" style="position: absolute; margin-top: -3%; right: 10px;"data-toggle="modal" data-target="#AddReserva"><i class="fa fa-plus" aria-hidden="true"></i> Reserva</button>
 
 <div>
     <table class="table">
@@ -44,3 +44,80 @@
         </tbody>
     </table>
 </div>
+
+
+<div class="modal fade" id="AddReserva" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Fazer Reserva</h4>
+            </div>
+            <form action="/Reserva/Create" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>DIA DA SEMANA</label>
+                        <select class="form-control" name="dia">
+                            <option value="1">Domingo</option>
+                            <option value="2">Segunda-Feira</option>
+                            <option value="3">Terça-Feira</option>
+                            <option value="4">Quarta-Feira</option>
+                            <option value="5">Quinta-Feira</option>
+                            <option value="6">Sexta-Feira</option>
+                            <option value="7">Sabado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Turno</label>
+                        <select class="form-control" name="turno">
+                            <option value="1">Manha</option>
+                            <option value="2">Tarde</option>
+                            <option value="3">Noite</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bloco</label>
+                        <select class="form-control" name="bloco">
+                            <option value="1">1ºBloco</option>
+                            <option value="2">2ºBloco</option>
+                            <option value="3">3ºBloco</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sala</label>
+                        <select class="form-control" name="sala">
+                            @foreach (var p in ViewBag.Salas)
+                            {
+                                <option value="@p.Id">@p.Nome</option>
+                            }
+                            
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Professor</label>
+                        <select class="form-control" name="professor">
+                            @foreach (var p in ViewBag.Professores)
+                            {
+                                <option value="@p.Id">@p.Nome @p.Sobrenome</option>
+                            }                        
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Turma</label>
+                        <select class="form-control" name="turma">
+                            <option value="1">teste</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
