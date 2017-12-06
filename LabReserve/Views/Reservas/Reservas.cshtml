@@ -8,6 +8,58 @@
 
 <button class="btn btn-default" style="position: absolute; margin-top: -3%; right: 10px;"data-toggle="modal" data-target="#AddReserva"><i class="fa fa-plus" aria-hidden="true"></i> Reserva</button>
 
+<script>
+    function getDia(a) {
+        var dia;
+        switch (a){
+            case 1:
+                dia = "Domingo";
+                break;
+            case 2:
+                dia = "Segunda-Feira";
+                break;
+            case 3:
+                dia = "Terça-Feira";
+                break;
+            case 4:
+                dia = "Quarta-Feira";
+                break;
+            case 5:
+                dia = "Quinta-Feira";
+                break;
+            case 6:
+                dia = "Sexta-Feira";
+                break;
+            case 7:
+                dia = "Sabado";
+                break;
+            default:
+                dia = "Erro"
+                break;
+        }
+        return dia;
+    }
+
+
+    function getTurno(b) {
+        var turno;
+        
+        switch (b) {
+            case 1:
+                turno = "Manha";
+                break;
+            case 2:
+                turno = "Tarde";
+                break;
+            case 3:
+                turno = "Noite";
+                break;
+        }
+
+        return turno;
+    }
+</script>
+
 <div>
     <table class="table">
         <thead>
@@ -24,23 +76,27 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>Segunda-Feira</td>
-                <td>Noite</td>
-                <td>2ºBloco</td>
-                <td>Lab 4</td>
-                <td>Mario</td>
-                <td>Marcus</td>
-                <td>5º Semestre</td>
-                <td>
-                    <div>
-                        <button class="btn btn-danger">
-                            DELETE
-                        </button>
-                    </div>
-                </td>
-            </tr>
+            @foreach (var p in ViewBag.Reservas)
+            {
+                <tr>
+                    <td>@p.Id</td>
+                    <td><script>document.write(getDia(@p.Data));</script></td>
+                    <td><script>document.write(getTurno(@p.Turno));</script></td>
+                    <td>@p.Bloco ºBloco</td>
+                    <td>@p.Sala.Nome</td>
+                    <td>@p.Admin.Nome</td>
+                    <td>@p.Professor.Nome</td>
+                    <td>@p.Turma.Nome @p.Turma.Curso.Nome</td>
+                    <td>
+                        <div>
+                            <a class="btn btn-danger" href="/Reservas/Delete?id=@p.Id">
+                                DELETE
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+
         </tbody>
     </table>
 </div>
@@ -53,7 +109,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Fazer Reserva</h4>
             </div>
-            <form action="/Reserva/Create" method="post">
+            <form action="/Reservas/Create" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>DIA DA SEMANA</label>
@@ -92,7 +148,7 @@
                             {
                                 <option value="@p.Id">@p.Nome</option>
                             }
-                            
+
                         </select>
                     </div>
 
@@ -102,14 +158,17 @@
                             @foreach (var p in ViewBag.Professores)
                             {
                                 <option value="@p.Id">@p.Nome @p.Sobrenome</option>
-                            }                        
+                            }
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>Turma</label>
                         <select class="form-control" name="turma">
-                            <option value="1">teste</option>
+                            @foreach (var p in ViewBag.Turmas)
+                            {
+                                <option value="@p.Id">@p.Nome @p.Curso.Nome</option>
+                            }
                         </select>
                     </div>
                 </div>

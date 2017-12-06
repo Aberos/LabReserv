@@ -44,7 +44,7 @@ namespace LabReserve.Controllers
                     //Criar uma sessão (mantida durante toda a aplicação)
                     Session["user"] = professor;
                     //usuario valido
-                    return RedirectToAction("Index", "Professor");
+                    return RedirectToAction("Professor", "Reservas");
                 }
             }
         }
@@ -81,6 +81,18 @@ namespace LabReserve.Controllers
                 }
 
             }
+        }
+
+        [SessionFilter]
+        public ActionResult Turmas()
+        {
+            return View();
+        }
+
+        [SessionFilter]
+        public ActionResult Solicitar()
+        {
+            return View();
         }
     }
 }

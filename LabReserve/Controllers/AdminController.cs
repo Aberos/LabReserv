@@ -106,18 +106,35 @@ namespace LabReserve.Controllers
         [SessionFilter]
         public ActionResult ManagerSala()
         {
+            using (SalaModel model = new SalaModel())
+            {
+                ViewBag.ListaSala = model.Read();
+            }
             return View();
         }
 
         [SessionFilter]
         public ActionResult ManagerTurma()
         {
+            using (CursoModel model = new CursoModel())
+            {
+                ViewBag.ListaCurso = model.Read();
+            }
+
+            using (TurmaModel model = new TurmaModel())
+            {
+                ViewBag.ListaTurma = model.Read();
+            }
             return View();
         }
 
         [SessionFilter]
         public ActionResult ManagerCurso()
         {
+            using(CursoModel model = new CursoModel())
+            {
+                ViewBag.ListaCurso = model.Read();
+            }
             return View();
         }
 

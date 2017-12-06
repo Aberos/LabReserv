@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewBag.Title = "Professor";
+    Layout = "~/Views/Shared/_LayoutProfessor.cshtml";
+}
+
+<h2>Minhas Reservas</h2>
+
+<script>
+    function getDia(a) {
+        var dia;
+        switch (a){
+            case 1:
+                dia = "Domingo";
+                break;
+            case 2:
+                dia = "Segunda-Feira";
+                break;
+            case 3:
+                dia = "Terça-Feira";
+                break;
+            case 4:
+                dia = "Quarta-Feira";
+                break;
+            case 5:
+                dia = "Quinta-Feira";
+                break;
+            case 6:
+                dia = "Sexta-Feira";
+                break;
+            case 7:
+                dia = "Sabado";
+                break;
+            default:
+                dia = "Erro"
+                break;
+        }
+        return dia;
+    }
+
+
+    function getTurno(b) {
+        var turno;
+
+        switch (b) {
+            case 1:
+                turno = "Manha";
+                break;
+            case 2:
+                turno = "Tarde";
+                break;
+            case 3:
+                turno = "Noite";
+                break;
+        }
+
+        return turno;
+    }
+</script>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Dia</th>
+                <th>Turno</th>
+                <th>Bloco</th>
+                <th>Sala</th>
+                <th>Professor</th>
+                <th>Turma</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in ViewBag.Reservas)
+            {
+                <tr>
+                    <td>@p.Id</td>
+                    <td>
+                    <script>document.write(getDia(@p.Data));</script></td>
+                    <td>
+                    <script>document.write(getTurno(@p.Turno));</script></td>
+                    <td>@p.Bloco ºBloco</td>
+                    <td>@p.Sala.Nome</td>
+                    <td>@p.Professor.Nome</td>
+                    <td>@p.Turma.Nome @p.Turma.Curso.Nome</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>

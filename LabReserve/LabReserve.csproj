@@ -126,8 +126,11 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\CursoController.cs" />
     <Compile Include="Controllers\ProfessorController.cs" />
     <Compile Include="Controllers\ReservasController.cs" />
+    <Compile Include="Controllers\SalaController.cs" />
+    <Compile Include="Controllers\TurmaController.cs" />
     <Compile Include="Filter\AdminFilter.cs" />
     <Compile Include="Filter\SessionFilter.cs" />
     <Compile Include="Global.asax.cs">
@@ -136,14 +139,17 @@
     <Compile Include="Models\Admin.cs" />
     <Compile Include="Models\AdminModel.cs" />
     <Compile Include="Models\Curso.cs" />
+    <Compile Include="Models\CursoModel.cs" />
     <Compile Include="Models\ModelBase.cs" />
     <Compile Include="Models\Pessoa.cs" />
     <Compile Include="Models\Professor.cs" />
     <Compile Include="Models\ProfessorModel.cs" />
     <Compile Include="Models\Reserva.cs" />
+    <Compile Include="Models\ReservaModel.cs" />
     <Compile Include="Models\Sala.cs" />
     <Compile Include="Models\SalaModel.cs" />
     <Compile Include="Models\Turma.cs" />
+    <Compile Include="Models\TurmaModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +165,9 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\_LayoutProfessor.cshtml" />
     <Content Include="Views\Reservas\Reservas.cshtml" />
+    <Content Include="Views\Reservas\Professor.cshtml" />
+    <Content Include="Views\Professor\Turmas.cshtml" />
+    <Content Include="Views\Professor\Solicitar.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -168,6 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Curso\" />
+    <Folder Include="Views\Sala\" />
+    <Folder Include="Views\Turma\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

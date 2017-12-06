@@ -11,10 +11,12 @@ namespace LabReserve.Models
         protected SqlConnection connection;
         public ModelBase()
         {
-            string strConn = @"Data Source = localhost;  
-                               Initial Catalog = labreserve;
-                               Integrated Security = true";
+            //string strConn = @"Data Source = localhost;  
+            //                   Initial Catalog = labreserve;
+            //                   Integrated Security = true";
             //USer Id = sa; Password = dba;
+            string strConn = @"Data Source=DESKTOP-QQDIO09\SQLEXPRESS;Initial Catalog=labreserve;User ID=sa;Password=99273286";
+            
 
             connection = new SqlConnection(strConn);
             connection.Open();

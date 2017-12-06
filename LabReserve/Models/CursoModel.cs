@@ -6,21 +6,21 @@ using System.Web;
 
 namespace LabReserve.Models
 {
-    public class SalaModel : ModelBase
+    public class CursoModel : ModelBase
     {
-        public List<Sala> Read()
+        public List<Curso> Read()
         {
-            List<Sala> lista = new List<Sala>();
+            List<Curso> lista = new List<Curso>();
 
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = connection;
-            cmd.CommandText = @"select * from salas";
+            cmd.CommandText = @"select * from cursos";
 
             SqlDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
-                Sala e = new Sala();
+                Curso e = new Curso();
                 e.Id = (int)reader["id"];
                 e.Nome = (string)reader["nome"];
 
@@ -31,13 +31,11 @@ namespace LabReserve.Models
         }
 
 
-
-
-        public void Create(Sala e)
+        public void Create(Curso e)
         {
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = connection; // objeto herdado do ModelBase
-            cmd.CommandText = @"insert into salas values (@nome)";
+            cmd.CommandText = @"insert into cursos values (@nome)";
 
             cmd.Parameters.AddWithValue("@nome", e.Nome);
 
@@ -48,12 +46,11 @@ namespace LabReserve.Models
         {
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = connection; // objeto herdado do ModelBase
-            cmd.CommandText = @"delete from salas where id = @id";
+            cmd.CommandText = @"delete from cursos where id = @id";
 
             cmd.Parameters.AddWithValue("@id", id);
 
             cmd.ExecuteNonQuery();
         }
-
     }
 }
