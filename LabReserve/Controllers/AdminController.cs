@@ -15,6 +15,11 @@ namespace LabReserve.Controllers
         // GET: Admin
         public ActionResult Index()
         {
+            using(SolicitacaoModel model = new SolicitacaoModel())
+            {
+                ViewBag.Solictacoes = model.Read();
+            }
+
             return View();
         }
 
@@ -36,6 +41,7 @@ namespace LabReserve.Controllers
                 if (admin == null)
                 {
                     // nao autenticado
+                    TempData["login"] = "Usuario invalido";
                     return RedirectToAction("Login");
                 }
                 else
@@ -137,6 +143,104 @@ namespace LabReserve.Controllers
             }
             return View();
         }
+
+        [SessionFilter]
+        public ActionResult AddTurma(int id)
+        {
+            Professor e = null;
+            using (ProfessorModel model = new ProfessorModel())
+            {
+                e = model.Read(id);
+            }
+
+            using(TurmaProfessorModel model = new TurmaProfessorModel())
+            {
+                ViewBag.Turmas = model.Read(id);
+            }
+
+            using (TurmaModel model = new TurmaModel())
+            {
+                ViewBag.ListaTurma = model.Read();
+            }
+            return View(e);
+        }
+
+        [SessionFilter]
+        [HttpPost]
+        public ActionResult AddTurma(FormCollection form)
+        {
+            int idProfessor = Convert.ToInt32(form["idProfessor"]);
+            int idTurma =  Convert.ToInt32(form["turma"]);
+
+            using(TurmaProfessorModel model = new TurmaProfessorModel())
+            {
+                model.Add(idProfessor, idTurma);
+            }
+
+            return RedirectToAction("AddTurma", "Admin", new { id = idProfessor });
+        }
+
+        [SessionFilter]
+        public ActionResult DeleteProf(int id)
+        {
+            using(ProfessorModel model =  new ProfessorModel())
+            {
+                model.Delete(id);
+            }
+
+            return RedirectToAction("ManagerProfessor");
+        }
+
+        [SessionFilter]
+        public ActionResult DeleteAdmin(int id)
+        {
+            using (AdminModel model = new AdminModel())
+            {
+                model.Delete(id);
+            }
+            return RedirectToAction("ManagerAdmin");
+        }
+
+        public ActionResult DeleteTurmaProf(int id, int idTurma)
+        {
+            using (TurmaProfessorModel model = new TurmaProfessorModel())
+            {
+                model.Remove(id, idTurma);
+            }
+
+            return RedirectToAction("AddTurma", "Admin", new { id = id });
+        }
+
+        public ActionResult RecusarSol(int id)
+        {
+            using (SolicitacaoModel model = new SolicitacaoModel())
+            {
+                Solicitacao e = new Solicitacao();
+                e.idSolicitacao = id;
+                e.Status = 3;
+
+                model.UpdateStatus(e);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+        public ActionResult AceitarSol(int id)
+        {
+            using (SolicitacaoModel model = new SolicitacaoModel())
+            {
+                Solicitacao e = new Solicitacao();
+                e.idSolicitacao = id;
+                e.Status = 2;
+
+                model.UpdateStatus(e);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
 
     }
 }

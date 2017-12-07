@@ -145,5 +145,29 @@ namespace LabReserve.Models
 
             cmd.ExecuteNonQuery();
         }
+
+        public bool CheckReserva(int idSala, string Dia, int Turno, int Bloco)
+        {
+            bool e = false;
+
+            //select * from v_reservas where idSala = 2 and Estatus = 1 and Dia = 2 and Turno = 1 and Bloco = 1
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connection;
+            cmd.CommandText = @"select * from v_reservas where idSala = @idSala and Estatus = 1 and Dia = @dia and Turno = @turno and Bloco = @bloco";
+
+            cmd.Parameters.AddWithValue("@idSala", idSala);
+            cmd.Parameters.AddWithValue("@dia", Dia);
+            cmd.Parameters.AddWithValue("@turno", Turno);
+            cmd.Parameters.AddWithValue("@bloco", Bloco);
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                e = true;
+            }
+
+            return e;
+        }
     }
 }

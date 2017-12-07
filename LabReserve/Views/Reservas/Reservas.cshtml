@@ -61,6 +61,14 @@
 </script>
 
 <div>
+
+    @if (TempData["reserva"] != null)
+    {
+
+        <div class="alert alert-info">
+            <p class="text-center">@TempData["reserva"]</p>
+        </div>
+    }
     <table class="table">
         <thead>
             <tr>

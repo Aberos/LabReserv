@@ -31,6 +31,14 @@
                     <input id="password" type="password" class="form-control" name="Senha"></input>
                 </div>
 
+                @if (TempData["login"] != null)
+                {
+    
+                        <div class="alert alert-success">
+                            <p class="text-center">@TempData["login"]</p>
+                        </div>
+                }
+
                 <button class="btn btn-success" type="submit" style="width: 100%">Logar</button>
                 <a href="/Professor/Login" class="btn btn-primary" style="width: 100%; margin-top: 5px">Professor</a>
                 

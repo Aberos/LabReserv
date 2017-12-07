@@ -79,5 +79,43 @@ namespace LabReserve.Models
 
             return lista;
         }
+
+        public Professor Read(int id)
+        {
+            Professor e = null;
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connection;
+            cmd.CommandText = @"select * from v_professores where idProfessor = @id";
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                e = new Professor();
+                e.Id = (int)reader["idProfessor"];
+                e.Nome = (string)reader["Nome"];
+                e.Sobrenome = (string)reader["Sobrenome"];
+                e.Email = (string)reader["Email"];
+                e.Celular = (string)reader["Celular"];
+                e.Status = (int)reader["Status"];
+                e.Permissao = (int)reader["Permissao"];
+            }
+
+            return e;
+        }
+
+
+        public void Delete(int id)
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connection; // objeto herdado do ModelBase
+            cmd.CommandText = @"UPDATE pessoas SET estatus = 2 WHERE id = @id";
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.ExecuteNonQuery();
+        }
     }
 }

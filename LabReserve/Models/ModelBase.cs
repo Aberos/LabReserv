@@ -15,7 +15,7 @@ namespace LabReserve.Models
             //                   Initial Catalog = labreserve;
             //                   Integrated Security = true";
             //USer Id = sa; Password = dba;
-            string strConn = @"Data Source=DESKTOP-QQDIO09\SQLEXPRESS;Initial Catalog=labreserve;User ID=sa;Password=99273286";
+            string strConn = @"Data Source=DESKTOP-QQDIO09\SQLEXPRESS;Initial Catalog=labreserve;User ID=sa;Password=99273286; MultipleActiveResultSets = true";
             
 
             connection = new SqlConnection(strConn);

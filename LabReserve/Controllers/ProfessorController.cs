@@ -35,6 +35,7 @@ namespace LabReserve.Controllers
 
                 if (professor == null)
                 {
+                    TempData["login"] = "Usuario invalido";
                     // nao autenticado
                     return RedirectToAction("Login");
                 }
@@ -86,13 +87,70 @@ namespace LabReserve.Controllers
         [SessionFilter]
         public ActionResult Turmas()
         {
+            using(TurmaProfessorModel model =  new TurmaProfessorModel())
+            {
+                int id = (Session["user"] as Professor).Id;
+                ViewBag.Turmas = model.Read(id);
+            }
+
             return View();
         }
 
         [SessionFilter]
         public ActionResult Solicitar()
         {
+
+            using (SolicitacaoModel model =  new SolicitacaoModel())
+            {
+                int id = (Session["user"] as Professor).Id;
+                ViewBag.Solictacoes = model.Read(id);
+            }
+
+            using (SalaModel model = new SalaModel())
+            {
+                ViewBag.Salas = model.Read();
+            }
+
+            using (TurmaProfessorModel model = new TurmaProfessorModel())
+            {
+                int id = (Session["user"] as Professor).Id;
+                ViewBag.Turmas = model.Read(id);
+            }
+
             return View();
+        }
+
+        [SessionFilter]
+        [HttpPost]
+        public ActionResult Solicitar(FormCollection form)
+        {
+            using (SolicitacaoModel model = new SolicitacaoModel())
+            {
+                Solicitacao e = new Solicitacao();
+                e.idProfessor = (Session["user"] as Professor).Id;
+                e.idSala = Convert.ToInt32(form["sala"]);
+                e.idTurma = Convert.ToInt32(form["turma"]);
+                e.Dia = Convert.ToInt32(form["dia"]);
+                e.Turno = Convert.ToInt32(form["turno"]);
+                e.Bloco = Convert.ToInt32(form["bloco"]);
+                model.Create(e);
+            }
+
+            return RedirectToAction("Solicitar");
+        }
+
+        public ActionResult CancelarSolicitacao(int id)
+        {
+            using (SolicitacaoModel model = new SolicitacaoModel())
+            {
+                Solicitacao e = new Solicitacao();
+                e.idSolicitacao = id;
+                e.Status = 4;
+
+                model.UpdateStatus(e);
+            }
+
+            return RedirectToAction("Solicitar");
         }
     }
 }

@@ -4,5 +4,28 @@
     Layout = "~/Views/Shared/_LayoutProfessor.cshtml";
 }
 
-<h2>Turmas</h2>
+<h2>Minhas Turmas</h2>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Curso</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in ViewBag.Turmas)
+            {
+                <tr>
+                    <td>@e.idTurma</td>
+                    <td>@e.nomeTurma</td>
+                    <td>@e.nomeCurso</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
 

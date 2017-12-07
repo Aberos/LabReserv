@@ -80,5 +80,16 @@ namespace LabReserve.Models
 
             return lista;
         }
+
+        public void Delete(int id)
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connection; // objeto herdado do ModelBase
+            cmd.CommandText = @"UPDATE pessoas SET estatus = 2 WHERE id = @id";
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.ExecuteNonQuery();
+        }
     }
 }

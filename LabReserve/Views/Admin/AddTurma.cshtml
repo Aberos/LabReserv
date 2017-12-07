@@ -1,0 +1,71 @@
+﻿@using LabReserve.Models
+@model Professor
+
+@{
+    ViewBag.Title = "AddTurma";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.Nome @Model.Sobrenome</h2>
+
+<button class="btn btn-default" style="position: absolute; margin-top: -3%; right: 10px;" data-toggle="modal" data-target="#AddTurma"><i class="fa fa-plus" aria-hidden="true"></i> Turmas</button>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Curso</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in ViewBag.Turmas)
+            {
+                <tr>
+                    <td>@e.idTurma</td>
+                    <td>@e.nomeTurma</td>
+                    <td>@e.nomeCurso</td>
+                    <td>
+                        <div>
+                            <a class="btn btn-danger" href="@Url.Action("DeleteTurmaProf", "Admin", new { id = Model.Id, idTurma = e.idTurma })">
+                                DELETE
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="AddTurma" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add Turma</h4>
+            </div>
+            <form action="/Admin/AddTurma" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Curso</label>
+                        <select class="form-control" name="turma">
+                            @foreach (var p in ViewBag.ListaTurma)
+                            {
+                                <option value="@p.Id">@p.Nome</option>
+                            }
+                        </select>
+                        <input type="hidden" name="idProfessor" value="@Model.Id">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

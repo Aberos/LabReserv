@@ -52,7 +52,15 @@ namespace LabReserve.Controllers
                 e.Turma.Id = Convert.ToInt32(form["turma"]);
                 e.Admin.Id = (Session["user"] as Admin).Id;
 
-                model.Create(e);
+                if(model.CheckReserva(e.Sala.Id, e.Data, e.Turno, e.Bloco) == false)
+                {
+                    TempData["reserva"] = "Reserva Criada!";
+                    model.Create(e);
+                }else
+                {
+                    TempData["reserva"] = "Ja existe uma reserva para esta sala neste dia ,turno e bloco";
+                }
+                
             }
             
             return RedirectToAction("Reservas");

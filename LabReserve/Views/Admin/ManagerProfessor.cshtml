@@ -29,9 +29,12 @@
                     <td>@p.Email</td>
                     <td>
                         <div>
-                            <button class="btn btn-danger">
+                            <a class="btn btn-danger btn-group-sm" href="/Admin/DeleteProf?id=@p.Id">
                                 DELETE
-                            </button>
+                            </a>
+                            <a class="btn bg-primary btn-group-sm" href="/Admin/AddTurma?id=@p.Id">
+                                VIEW
+                            </a>
                         </div>
                     </td>
                 </tr>

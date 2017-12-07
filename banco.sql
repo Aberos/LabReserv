@@ -131,7 +131,7 @@ create procedure LogarAdmins
 )
 as
 begin
-    select * from v_admin where Email = @email and Senha = @senha
+    select * from v_admin where Email = @email and Senha = @senha and Status = 1
 end
 go
  
@@ -174,7 +174,7 @@ create procedure LogarProfessor
 )
 as
 begin
-    select * from v_professores where Email = @email and Senha = @senha
+    select * from v_professores where Email = @email and Senha = @senha and Status = 1
 end
 go
  
@@ -252,4 +252,55 @@ begin
                        id_sala = @idSala, id_admin = @idAdmin, id_professor = @idProfessor, id_turma = @idTurma
                        WHERE id = @idReserva
 end
+go
+
+create view v_turma_prof
+as
+select t.id             idTurma,
+       t.nome           nomeTurma,
+       c.id             idCurso,
+       c.nome           nomeCurso,
+	   a.id_professor   idProfessor,
+	   a.status			Status		
+ 
+from turma_professor a, turmas t, cursos c
+where a.id_turma = t.id  and t.id_curso = c.id
+Go
+
+create table solicitacoes
+(
+	id int not null  primary key identity,
+	idProfessor int not null references professores,
+	idSala int not null references salas,
+	idTurma int not null references turmas,
+	dia int not null,
+	turno int not null,
+	bloco int not null,
+	status int not null
+)
+go
+
+create view v_solicitacao
+as
+select 
+     s.id           idSolicitacao,
+	 p.idProfessor  idProfessor,
+	 p.Nome         nomeProfessor,
+	 p.Sobrenome    sobrenomeProfessor,
+	 a.id           idSala,
+	 a.nome         nomeSala,
+	 t.idTurma      idTurma,
+	 t.nomeTurma    nomeTurma,
+	 t.idCurso      idCurso,
+	 t.nomeTurma    nomeCurso,
+	 s.dia          Dia,
+	 s.turno        Turno,
+	 s.bloco        Bloco,
+	 s.status       Status
+
+from solicitacoes s, v_professores p,
+	 salas a, v_turmas t
+where s.idProfessor = p.idProfessor and
+	  s.idSala = a.id and
+	  s.idTurma = t.idTurma
 go
