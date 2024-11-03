@@ -1,0 +1,6 @@
+﻿services:
+  labreserve.webapp:
+    image: labreserve.webapp
+    build:
+      context: .
+      dockerfile: LabReserve.WebApp/Dockerfile

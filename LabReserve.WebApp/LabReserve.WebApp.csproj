@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controllers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Professor\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Professor\Login.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Professor\Solicitar.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Professor\Turmas.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Reservas\Professor.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Reservas\Reservas.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.35" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Infrastructure\Abstractions\IDatabaseFactory.cs" />
+      <Compile Remove="Infrastructure\Abstractions\IDataSettings.cs" />
+    </ItemGroup>
+</Project>
