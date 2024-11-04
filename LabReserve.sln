@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabReserve.WebApp", "LabReserve.WebApp\LabReserve.WebApp.csproj", "{B40A0F0F-268F-456C-BCCB-6A2F354A5BFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LabReserve.WebApp", "LabReserve.WebApp\LabReserve.WebApp.csproj", "{B40A0F0F-268F-456C-BCCB-6A2F354A5BFA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EC062681-8194-41A8-B8CE-5A5C72CDC9A1}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		docker-compose.yml = docker-compose.yml
 		schema.sql = schema.sql
 	EndProjectSection
@@ -24,5 +25,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6E20BC7-EE4F-4848-9C2A-0ADD03B98D14}
 	EndGlobalSection
 EndGlobal
