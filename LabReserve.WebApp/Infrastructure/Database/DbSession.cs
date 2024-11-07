@@ -1,7 +1,6 @@
 using System.Data;
 using System.Data.SqlClient;
 using LabReserve.WebApp.Infrastructure.Abstractions;
-using Microsoft.Extensions.Options;
 
 namespace LabReserve.WebApp.Infrastructure.Database;
 
