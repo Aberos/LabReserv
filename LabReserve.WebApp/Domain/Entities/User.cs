@@ -15,4 +15,13 @@ public class User : BaseEntity
     public string Password { get; set; }
     
     public UserType UserType { get; set; }
+
+    public string GetFullName()
+    {
+        var name = FirstName;
+        if(!string.IsNullOrWhiteSpace(LastName))
+            name += $" {LastName}";
+        
+        return name;
+    }
 }

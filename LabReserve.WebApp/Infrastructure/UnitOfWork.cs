@@ -1,13 +1,14 @@
 using LabReserve.WebApp.Domain.Abstractions;
+using LabReserve.WebApp.Infrastructure.Abstractions;
 using LabReserve.WebApp.Infrastructure.Database;
 
 namespace LabReserve.WebApp.Infrastructure;
 
 public class UnitOfWork: IUnitOfWork
 {
-    private readonly DbSession _session;
+    private readonly IDbSession _session;
 
-    public UnitOfWork(DbSession session)
+    public UnitOfWork(IDbSession session)
     {
         _session = session;
     }

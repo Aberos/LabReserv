@@ -1,38 +1,55 @@
 using LabReserve.WebApp.Domain.Abstractions;
 using LabReserve.WebApp.Domain.Dto;
 using LabReserve.WebApp.Domain.Entities;
+using LabReserve.WebApp.Helpers;
 
 namespace LabReserve.WebApp.Services;
 
 public class UserService : IUserService
 {
+    private readonly IUserRepository _userRepository;   
+    public UserService(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+    
     public void Create(User entity)
     {
-        throw new NotImplementedException();
+        _userRepository.Create(entity);
     }
 
     public void Update(User entity)
     {
-        throw new NotImplementedException();
+        _userRepository.Update(entity);
     }
 
     public void Delete(User entity)
     {
-        throw new NotImplementedException();
+        _userRepository.Delete(entity);
     }
 
     public Task<User> Get(long id)
     {
-        throw new NotImplementedException();
+        return _userRepository.Get(id);
     }
 
     public Task<IEnumerable<User>> GetAll(FilterRequest filter)
     {
-        throw new NotImplementedException();
+        return _userRepository.GetAll(filter);
     }
 
-    public Task<UserAuthDto> SignIn(string email, string password)
+    public async Task<UserAuthDto> SignIn(string email, string password)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByEmail(email) ?? throw new Exception("User not found");
+        if(user.Password != UserHelper.EncryptPassword(password))
+            throw new Exception("Invalid email or password");
+        
+        return new UserAuthDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Name = user.GetFullName(),
+            UserType = user.UserType
+        };
     }
 }

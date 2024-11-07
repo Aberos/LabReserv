@@ -17,7 +17,9 @@ public sealed class DbSession : IDbSession
     {
         _id = Guid.NewGuid();
         _configuration = configuration;
-        Connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+
+        var connectionString = _configuration.GetConnectionString("Default");
+        Connection = new SqlConnection(connectionString);
         Connection.Open();
     }
     

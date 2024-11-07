@@ -13,12 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Professor\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Professor\Login.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Professor\Solicitar.cshtml" />
