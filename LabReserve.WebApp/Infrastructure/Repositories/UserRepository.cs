@@ -50,7 +50,7 @@ public class UserRepository :  IUserRepository
 
     public Task<User> Get(long id)
     {
-       return _session.Connection.QueryFirstAsync<User>(@"SELECT
+       return _session.Connection.QueryFirstOrDefaultAsync<User>(@"SELECT
                 u.id as Id,
                 u.status as Status,
                 u.email as Email,
@@ -64,7 +64,7 @@ public class UserRepository :  IUserRepository
                 u.created_by as CreatedBy,
                 u.created_date as CreatedDate
             FROM users u
-            WHERE u.id = @Id AND u.status = 1", new {Id = id}, _session.Transaction);
+            WHERE u.id = @Id AND u.status = 1", new {Id = id}, _session.Transaction)!;
     }
 
     public Task<IEnumerable<User>> GetAll(FilterRequest filter)
@@ -95,7 +95,7 @@ public class UserRepository :  IUserRepository
 
     public Task<User?> GetByEmail(string email)
     {
-        return _session.Connection.QueryFirstAsync<User>(@"SELECT
+        return _session.Connection.QueryFirstOrDefaultAsync<User>(@"SELECT
                 u.id as Id,
                 u.status as Status,
                 u.email as Email,

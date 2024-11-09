@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using LabReserve.WebApp.Domain.Abstractions;
+using LabReserve.WebApp.Domain.Dto;
 
 namespace LabReserve.WebApp.Controllers
 {
@@ -20,14 +21,14 @@ namespace LabReserve.WebApp.Controllers
             return View();
         }
 
-        [Route("sign-in")]
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> PostAuth()
+        [Route("{controller}/sing-in")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             try
             {
-                var result = await service.SignIn("", "");
+                var result = await service.SignIn(request.Email, request.Password);
                 var claims = new List<Claim>
                 {
                     new(ClaimTypes.Name, result.Name),
@@ -44,7 +45,7 @@ namespace LabReserve.WebApp.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok();
+                return Redirect("/home");
             }
             catch (Exception e)
             {
@@ -52,8 +53,8 @@ namespace LabReserve.WebApp.Controllers
             }
         }
 
-        [Route("sign-out")]
         [HttpGet]
+        [Route("{controller}/sign-out")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

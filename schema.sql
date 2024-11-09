@@ -17,7 +17,7 @@ create table users
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4)),
     check (user_type in (1,2,3))
 );
@@ -30,7 +30,7 @@ create table rooms
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4))
 );
 
@@ -42,7 +42,7 @@ create table courses
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4))
 );
 
@@ -55,7 +55,7 @@ create table groups
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4))
 );
 
@@ -67,7 +67,7 @@ create table group_user
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4)),
     primary key(id_user, id_group)
 );
@@ -84,7 +84,7 @@ create table reservations
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date     datetime,
     check (status in (1,2,3,4))
 );
 
@@ -100,7 +100,7 @@ create table requests
     created_by      bigint not null,
     created_date    datetime not null,
     updated_by      bigint,
-    update_date     datetime,
+    updated_date    datetime,
     check (status in (1,2,3,4))
 );
 

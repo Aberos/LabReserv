@@ -4,6 +4,53 @@
     Layout = "_EmptyLayout";
 }
 
-<div class="container-fluid">
-    <h1>Auth</h1>
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("#login-form").submit(function (e) {
+                e.preventDefault();
+                let data = Object.fromEntries([...new FormData(this)]);
+                $.ajax({
+                    url: 'auth/sing-in',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: (res) => {
+                        console.log(res);
+                    },
+                    error: (a, b, c) => {
+                        console.log(a, b, c);
+                    },
+                    complete: (data) => {
+                        console.log(data);
+                    }
+                })
+            });
+        });
+    </script>
+}
+
+<div class="h-100 d-flex align-items-center">
+    <main class="form-signin text-center">
+        <form id="login-form">
+            <h1 class="h3 mb-3 fw-normal">Lab Reserv</h1>
+
+            <div class="form-floating">
+                <input type="email" class="form-control" id="floatingInput" name="email" placeholder="name@example.com">
+                <label for="floatingInput">Email address</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password">
+                <label for="floatingPassword">Password</label>
+            </div>
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" value="true" name="remember"> Remember me
+                </label>
+            </div>
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            <p class="mt-5 mb-3 text-muted">&copy; 2024–2025</p>
+        </form>
+    </main>
 </div>
