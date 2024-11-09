@@ -13,6 +13,8 @@
         MSSQL_PID: "Developer"
     ports:
         - "1433:1433"
+    volumes:
+      - database_data:/var/opt/mssql
      
   mssqltools:
     image: mcr.microsoft.com/mssql-tools
@@ -22,3 +24,7 @@
         - ./schema.sql:/tmp/schema.sql
         - ./init-schema.sh:/tmp/init-schema.sh
     command: /bin/bash ./tmp/init-schema.sh
+
+volumes:
+  database_data:
+    driver: local

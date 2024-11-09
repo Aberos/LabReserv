@@ -45,7 +45,7 @@ namespace LabReserve.WebApp.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Redirect("/home");
+                return Json(result);
             }
             catch (Exception e)
             {

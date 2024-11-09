@@ -12,7 +12,7 @@ create table users
     first_name      varchar(50)  not null,
     last_name       varchar(50)  not null,
     phone           varchar(20)  null,
-    password        varchar(50)  not null,
+    password        varchar(max)  not null,
     user_type       int,
     created_by      bigint not null,
     created_date    datetime not null,
