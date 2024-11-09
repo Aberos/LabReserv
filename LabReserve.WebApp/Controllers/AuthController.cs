@@ -24,11 +24,11 @@ namespace LabReserve.WebApp.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("{controller}/sing-in")]
-        public async Task<IActionResult> SignIn([FromBody] LoginRequestDto request)
+        public async Task<IActionResult> SignIn([FromBody] AuthRequestDto request)
         {
             try
             {
-                var result = await service.SignIn(request.Email, request.Password);
+                var result = await service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
                 var claims = new List<Claim>
                 {
                     new(ClaimTypes.Name, result.Name),
@@ -45,7 +45,7 @@ namespace LabReserve.WebApp.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Json(result);
+                return Json(new AuthResponse(result.Email, result.UserType, result.Name));
             }
             catch (Exception e)
             {
@@ -59,6 +59,14 @@ namespace LabReserve.WebApp.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Ok(new { success = true });
+        }
+
+        [HttpGet]
+        [Route("{controller}/user")]
+        public async Task<IActionResult> UserAuth()
+        {
+            var user = HttpContext.User;
+            return Json(user);
         }
     }
 }
