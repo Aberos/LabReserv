@@ -24,7 +24,7 @@ namespace LabReserve.WebApp.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("{controller}/sing-in")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        public async Task<IActionResult> SignIn([FromBody] LoginRequestDto request)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace LabReserve.WebApp.Controllers
 
         [HttpGet]
         [Route("{controller}/sign-out")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> SingOut()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Ok(new { success = true });
