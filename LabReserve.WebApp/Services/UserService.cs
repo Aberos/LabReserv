@@ -46,7 +46,7 @@ public class UserService : IUserService
         if(user.Password != UserHelper.EncryptPassword(password))
             throw new Exception("Invalid email or password");
 
-        var authUser = new UserAuthDto
+        var userAuth = new UserAuthDto
         {
             Id = user.Id,
             Email = user.Email,
@@ -54,9 +54,9 @@ public class UserService : IUserService
             UserType = user.UserType
         };
 
-        await _authUser.SetUser(authUser);
+        await _authUser.SetUser(userAuth);
 
-        return authUser;
+        return userAuth;
     }
 
     public async Task SignOut()
