@@ -31,6 +31,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("manager", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Manager.ToString()))
     .AddPolicy("admin", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Admin.ToString()));
 
+
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
