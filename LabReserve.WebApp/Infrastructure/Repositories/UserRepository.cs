@@ -67,7 +67,7 @@ public class UserRepository :  IUserRepository
             WHERE u.id = @Id AND u.status = 1", new {Id = id}, _session.Transaction)!;
     }
 
-    public Task<IEnumerable<User>> GetAll(FilterRequest filter)
+    public Task<IEnumerable<User>> GetAll(FilterRequestDto filter)
     {
         return _session.Connection.QueryAsync<User>(@"SELECT
                 u.id as Id,

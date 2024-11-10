@@ -34,7 +34,7 @@ public class RoomRepository : IRoomRepository
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Room>> GetAll(FilterRequest filter)
+    public Task<IEnumerable<Room>> GetAll(FilterRequestDto filter)
     {
         throw new NotImplementedException();
     }

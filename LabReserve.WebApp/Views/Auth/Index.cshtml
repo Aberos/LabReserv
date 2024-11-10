@@ -21,14 +21,7 @@
                         window.location.href = '/home';
                     },
                     error: (res) => {
-                        $.toast({
-                            heading: 'Error',
-                            text: res.responseText,
-                            icon: 'error',
-                            showHideTransition: 'fade',
-                            position: 'bottom-right',
-                        })
-                        console.log();
+                        window.toastMessage.error(res);
                     },
                     complete: (data) => {
                         $('#submit-button').prop("disabled", false);

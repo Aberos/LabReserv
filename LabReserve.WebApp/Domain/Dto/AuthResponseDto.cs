@@ -2,7 +2,7 @@
 
 namespace LabReserve.WebApp.Domain.Dto
 {
-    public record AuthResponse(string Email , UserType Type, string Name)
+    public record AuthResponseDto(string Email , UserType Type, string Name)
     {
     }
 }

@@ -1,6 +1,6 @@
 namespace LabReserve.WebApp.Domain.Dto;
 
-public class FilterRequest
+public class FilterRequestDto
 {
     public int Size { get; set; }
     

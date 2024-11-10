@@ -1,6 +1,7 @@
 using LabReserve.WebApp.Domain.Enums;
 using LabReserve.WebApp.Infrastructure;
 using LabReserve.WebApp.Services;
+using LabReserve.WebApp.Validators;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureInfrastructureApp(builder.Configuration);
 builder.Services.ConfigureServicesApp();
+builder.Services.ConfigureValidatorsApp();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>

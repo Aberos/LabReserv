@@ -45,7 +45,7 @@ namespace LabReserve.WebApp.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Json(new AuthResponse(result.Email, result.UserType, result.Name));
+                return Json(new AuthResponseDto(result.Email, result.UserType, result.Name));
             }
             catch (Exception e)
             {

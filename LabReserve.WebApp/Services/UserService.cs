@@ -33,7 +33,7 @@ public class UserService : IUserService
         return _userRepository.Get(id);
     }
 
-    public Task<IEnumerable<User>> GetAll(FilterRequest filter)
+    public Task<IEnumerable<User>> GetAll(FilterRequestDto filter)
     {
         return _userRepository.GetAll(filter);
     }
