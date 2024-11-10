@@ -7,12 +7,14 @@ namespace LabReserve.WebApp.Services;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;   
-    public UserService(IUserRepository userRepository)
+    private readonly IUserRepository _userRepository;
+    private readonly IAuthUser _authUser;
+    public UserService(IUserRepository userRepository, IAuthUser authUser)
     {
         _userRepository = userRepository;
+        _authUser = authUser;
     }
-    
+
     public void Create(User entity)
     {
         _userRepository.Create(entity);
@@ -43,13 +45,22 @@ public class UserService : IUserService
         var user = await _userRepository.GetByEmail(email) ?? throw new Exception("User not found");
         if(user.Password != UserHelper.EncryptPassword(password))
             throw new Exception("Invalid email or password");
-        
-        return new UserAuthDto
+
+        var authUser = new UserAuthDto
         {
             Id = user.Id,
             Email = user.Email,
             Name = user.GetFullName(),
             UserType = user.UserType
         };
+
+        await _authUser.SetUser(authUser);
+
+        return authUser;
+    }
+
+    public async Task SignOut()
+    {
+        await _authUser.RemoveUser();
     }
 }

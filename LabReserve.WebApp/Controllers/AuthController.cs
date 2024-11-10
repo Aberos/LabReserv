@@ -34,8 +34,6 @@ namespace LabReserve.WebApp.Controllers
             try
             {
                 var result = await _service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
-                await HttpContext.SetAuthUser(result);
-
                 return Json(new AuthResponseDto(result.Email, result.UserType, result.Name));
             }
             catch (Exception e)
@@ -48,16 +46,8 @@ namespace LabReserve.WebApp.Controllers
         [Route("{controller}/sign-out")]
         public async Task<IActionResult> SingOut()
         {
-            await HttpContext.RemoveAuthUser();
-
+            await _service.SignOut();
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("{controller}/user")]
-        public IActionResult UserAuth()
-        {
-            return Json(AuthUser);
         }
     }
 }

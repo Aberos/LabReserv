@@ -12,5 +12,9 @@ namespace LabReserve.WebApp.Domain.Abstractions
         string Name { get; }
 
         string Email { get; }
+
+        Task SetUser(UserAuthDto userAuthDto);
+
+        Task RemoveUser();
     }
 }
