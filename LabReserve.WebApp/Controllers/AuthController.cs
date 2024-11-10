@@ -1,15 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using LabReserve.WebApp.Domain.Abstractions;
 using LabReserve.WebApp.Domain.Dto;
+using LabReserve.WebApp.Infrastructure;
 
 namespace LabReserve.WebApp.Controllers
 {
-    public class AuthController(IUserService service) : Controller
+    public class AuthController : BaseController
     {
+        private readonly IUserService _service;
+
+        public AuthController(IAuthUser authUser, IUserService service) : base(authUser)
+        {
+            _service = service;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -28,22 +33,8 @@ namespace LabReserve.WebApp.Controllers
         {
             try
             {
-                var result = await service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
-                var claims = new List<Claim>
-                {
-                    new(ClaimTypes.Name, result.Name),
-                    new(ClaimTypes.Email, result.Email),
-                    new(ClaimTypes.Sid, result.Id.ToString()),
-                    new(ClaimTypes.Role, result.UserType.ToString())
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties { };
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
+                var result = await _service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
+                await HttpContext.SetAuthUser(result);
 
                 return Json(new AuthResponseDto(result.Email, result.UserType, result.Name));
             }
@@ -57,16 +48,16 @@ namespace LabReserve.WebApp.Controllers
         [Route("{controller}/sign-out")]
         public async Task<IActionResult> SingOut()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok(new { success = true });
+            await HttpContext.RemoveAuthUser();
+
+            return Ok();
         }
 
         [HttpGet]
         [Route("{controller}/user")]
-        public async Task<IActionResult> UserAuth()
+        public IActionResult UserAuth()
         {
-            var user = HttpContext.User;
-            return Json(user);
+            return Json(AuthUser);
         }
     }
 }
