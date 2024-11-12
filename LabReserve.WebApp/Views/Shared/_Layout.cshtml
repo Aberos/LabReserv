@@ -1,6 +1,6 @@
-﻿@using LabReserve.WebApp.Domain.Enums;
-@using  LabReserve.WebApp.Domain.Abstractions;
-@inject IAuthUser _authUser;
+﻿@using LabReserve.Domain.Enums;
+@using  LabReserve.Domain.Abstractions;
+@inject IAuthService _authService;
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +20,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="w-100 d-flex flex-wrap justify-content-center justify-content-lg-end align-items-center">
-            <span class="text-white"><span data-feather="user" class="me-1"></span> @_authUser?.Name</span>
+            <span class="text-white"><span data-feather="user" class="me-1"></span> @_authService?.Name</span>
         </div>
         <div class="navbar-nav">
             <div class="nav-item text-nowrap">
@@ -61,7 +61,7 @@
                             </a>
                         </li>
 
-                        @if (_authUser?.UserType == UserType.Admin)
+                        @if (_authService?.UserType == UserType.Admin)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" href="#">

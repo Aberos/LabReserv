@@ -22,15 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dapper" Version="2.1.35" />
-      <PackageReference Include="FluentValidation" Version="11.10.0" />
-      <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-      <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.4.0" />
-      <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="Infrastructure\Abstractions\IDatabaseFactory.cs" />
-      <Compile Remove="Infrastructure\Abstractions\IDataSettings.cs" />
+      <ProjectReference Include="..\LabReserve.Application\LabReserve.Application.csproj" />
+      <ProjectReference Include="..\LabReserve.Domain\LabReserve.Domain.csproj" />
+      <ProjectReference Include="..\LabReserve.Persistence\LabReserve.Persistence.csproj" />
     </ItemGroup>
 </Project>

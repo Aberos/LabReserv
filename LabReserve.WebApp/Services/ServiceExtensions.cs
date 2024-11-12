@@ -1,11 +1,11 @@
-using LabReserve.WebApp.Domain.Abstractions;
+using LabReserve.Domain.Abstractions;
 
 namespace LabReserve.WebApp.Services;
 
 public static class ServiceExtensions
 {
-    public static void ConfigureServicesApp(this IServiceCollection services)
+    public static void ConfigureServicesWebApp(this IServiceCollection services)
     {
-        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IAuthService, AuthService>();
     }
 }

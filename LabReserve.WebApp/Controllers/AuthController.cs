@@ -1,19 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using LabReserve.WebApp.Domain.Abstractions;
-using LabReserve.WebApp.Domain.Dto;
-using LabReserve.WebApp.Infrastructure;
 
 namespace LabReserve.WebApp.Controllers
 {
-    public class AuthController : BaseController
+    public class AuthController(IUserService service) : Controller()
     {
-        private readonly IUserService _service;
-
-        public AuthController(IAuthUser authUser, IUserService service) : base(authUser)
-        {
-            _service = service;
-        }
 
         public IActionResult Index()
         {
@@ -33,7 +26,7 @@ namespace LabReserve.WebApp.Controllers
         {
             try
             {
-                var result = await _service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
+                var result = await service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
                 return Json(new AuthResponseDto(result.Email, result.UserType, result.Name));
             }
             catch (Exception e)
@@ -46,7 +39,7 @@ namespace LabReserve.WebApp.Controllers
         [Route("{controller}/sign-out")]
         public async Task<IActionResult> SingOut()
         {
-            await _service.SignOut();
+            await service.SignOut();
             return Ok();
         }
     }
