@@ -2,6 +2,15 @@
 @using  LabReserve.Domain.Abstractions;
 @inject IAuthService _authService;
 
+@{ 
+    var url = new Uri(String.Format("{0}://{1}{2}{3}", Context.Request.Scheme, Context.Request.Host, Context.Request.Path, Context.Request.QueryString));
+    var absolutePath = url.AbsolutePath;
+    if (absolutePath?.StartsWith('/') ?? false)
+        absolutePath = absolutePath.Remove(0, 1);
+
+    var path = absolutePath?.Split('/')?.FirstOrDefault()?.ToLower()?.Trim() ?? string.Empty;
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,25 +46,25 @@
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">
+                            <a class="nav-link @(path == "" || path == "home" ? "active": "")" aria-current="page" href="/home">
                                 <span data-feather="calendar"></span>
                                 Home
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link @(path == "course" ? "active": "")" href="#">
                                 <span data-feather="list"></span>
                                 Courses
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link @(path == "group" ? "active": "")" href="#">
                                 <span data-feather="layers"></span>
                                 Groups
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link @(path == "room" ? "active": "")" href="#">
                                 <span data-feather="codepen"></span>
                                 Rooms
                             </a>
@@ -64,7 +73,7 @@
                         @if (_authService?.UserType == UserType.Admin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link @(path == "user" ? "active": "")" href="/user">
                                     <span data-feather="users"></span>
                                     Users
                                 </a>
