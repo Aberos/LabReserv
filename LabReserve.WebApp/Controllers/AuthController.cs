@@ -40,7 +40,7 @@ namespace LabReserve.WebApp.Controllers
         public async Task<IActionResult> SingOut()
         {
             await service.SignOut();
-            return Ok();
+            return Redirect("/Auth");
         }
     }
 }
