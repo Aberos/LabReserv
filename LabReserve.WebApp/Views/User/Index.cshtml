@@ -3,6 +3,29 @@
     Layout = "_Layout";
 }
 
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            window.tables.init('table-user', [
+                { data: 'email', title: 'Email' },
+                { data: 'firstName', title: 'First name' },
+                { data: 'lastName', title: 'Last name' },
+                { data: 'phone', title: 'Phone' },
+                { data: 'type', title: 'Type' },
+                { data: 'options', title: 'Options' }
+            ], '/user/list');
+        });
+    </script>
+}
+
 <div class="container-fluid">
     <h1>Users</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table id="table-user">
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

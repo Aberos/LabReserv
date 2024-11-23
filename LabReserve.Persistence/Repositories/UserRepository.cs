@@ -3,6 +3,7 @@ using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
 using LabReserve.Persistence.Abstractions;
+using static Dapper.SqlMapper;
 
 namespace LabReserve.Persistence.Repositories;
 
@@ -111,5 +112,53 @@ public class UserRepository : IUserRepository
             FROM users u
             WHERE 
                 u.status = 1 AND u.email = @Email", new { Email = email }, _session.Transaction)!;
+    }
+
+    public void AddGroup(GroupUser group)
+    {
+        _session.Connection.Execute(@"INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
+                VALUES (1, @IdUser, @IdGroup, @CreatedBy, GETDATE())", group, _session.Transaction);
+    }
+
+    public void RemoveGroup(GroupUser group)
+    {
+        _session.Connection.Execute(@"UPDATE users SET 
+                 status = 2,
+                 updated_by = @UpdatedBy,
+                 updated_date = GETDATE()
+            WHERE id_user = @IdUser AND id_group = @IdGroup AND status = 1", group, _session.Transaction);
+    }
+
+    public void RemoveAllGroup(long userId, string updatedBy)
+    {
+        _session.Connection.Execute(@"UPDATE users SET 
+                 status = 2,
+                 updated_by = @UpdatedBy,
+                 updated_date = GETDATE()
+            WHERE id_user = @IdUser AND status = 1", new { IdUser = userId, UpdatedBy = updatedBy }, _session.Transaction);
+    }
+
+    public Task<IEnumerable<GroupUser>> GetGroups(long userId)
+    {
+        return _session.Connection.QueryAsync<GroupUser>(@"SELECT
+                g.id_user as IdUser,
+                g.id_group as IdGroup,
+                g.status as Status,
+                g.updated_by as UpdatedBy,
+                g.updated_date as UpdatedDate,
+                g.created_by as CreatedBy,
+                g.created_date as CreatedDate
+            FROM group_user g
+            WHERE g.id_user = @UserId AND g.status = 1", new { UserId = userId }, _session.Transaction)!;
+    }
+
+    public async Task<bool> AnyGroup(long userId, long groupId)
+    {
+        var groups = await _session.Connection.QueryAsync<GroupUser>(@"SELECT
+                g.id_user as IdUser,
+            FROM group_user g
+            WHERE g.id_user = @UserId AND g.id_group = @GroupId AND g.status = 1", new { UserId = userId, GroupId = groupId }, _session.Transaction);
+
+        return groups?.Any() ?? false;
     }
 }

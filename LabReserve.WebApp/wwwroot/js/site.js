@@ -38,6 +38,20 @@ window.toastMessage = {
     }
 }
 
+
+window.tables = {
+    init: (id, columns, path) => {
+        return $(`#${id}`).DataTable({
+            serverSide: true,
+            ajax: {
+                url: path,
+                type: 'GET'
+            },
+            columns: columns,
+        });
+    }
+}
+
 window.utils = {
     isJsonString: (str) => {
         try {
