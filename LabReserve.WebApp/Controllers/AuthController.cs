@@ -1,11 +1,12 @@
-﻿using LabReserve.Domain.Abstractions;
-using LabReserve.Domain.Dto;
+﻿using LabReserve.Application.UseCases.Users.UserSignIn;
+using LabReserve.Application.UseCases.Users.UserSignOut;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabReserve.WebApp.Controllers
 {
-    public class AuthController(IUserService service) : Controller()
+    public class AuthController(IMediator mediator) : Controller()
     {
 
         public IActionResult Index()
@@ -22,12 +23,12 @@ namespace LabReserve.WebApp.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("{controller}/sing-in")]
-        public async Task<IActionResult> SignIn([FromBody] AuthRequestDto request)
+        public async Task<IActionResult> SignIn([FromBody] SignInUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await service.SignIn(request.Email, request.Password) ?? throw new Exception("User not found");
-                return Json(new AuthResponseDto(result.Email, result.UserType, result.Name));
+                await mediator.Send(request, cancellationToken);
+                return Ok();
             }
             catch (Exception e)
             {
@@ -37,9 +38,9 @@ namespace LabReserve.WebApp.Controllers
 
         [HttpGet]
         [Route("{controller}/sign-out")]
-        public async Task<IActionResult> SingOut()
+        public async Task<IActionResult> SingOut(CancellationToken cancellationToken)
         {
-            await service.SignOut();
+            await mediator.Send(new SignOutUserCommand(), cancellationToken);
             return Redirect("/Auth");
         }
     }
