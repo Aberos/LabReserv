@@ -7,7 +7,7 @@ namespace LabReserve.Application.UseCases.Users.UserSignIn
         public SignInUserValidator()
         {
             RuleFor(request => request.Email).NotNull().EmailAddress();
-            RuleFor(request => request.Password).NotNull().MinimumLength(3);
+            RuleFor(request => request.Password).NotNull().MinimumLength(6);
         }
     }
 }

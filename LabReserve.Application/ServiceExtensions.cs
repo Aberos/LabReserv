@@ -7,7 +7,7 @@ namespace LabReserve.Application;
 
 public static class ServiceExtensions
 {
-    public static void ConfigureServicesApp(this IServiceCollection services)
+    public static void ConfigureApplicationApp(this IServiceCollection services)
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

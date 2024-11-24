@@ -8,7 +8,7 @@ using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureInfrastructureApp(builder.Configuration);
-builder.Services.ConfigureServicesApp();
+builder.Services.ConfigureApplicationApp();
 builder.Services.ConfigureServicesWebApp();
 
 // Add services to the container.
