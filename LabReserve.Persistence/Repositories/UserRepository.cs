@@ -16,16 +16,16 @@ public class UserRepository : IUserRepository
         _session = session;
     }
 
-    public void Create(User entity)
+    public Task<long> Create(User entity)
     {
-        _session.Connection.Execute(@"INSERT INTO users 
+        return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO users 
                 (status, email, first_name, last_name, phone, password, user_type, created_by, created_date)
-                VALUES (1, @Email, @FirstName, @LastName, @Phone, @Password, @UserType, @CreatedBy, GETDATE())", entity, _session.Transaction);
+                VALUES (1, @Email, @FirstName, @LastName, @Phone, @Password, @UserType, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
     }
 
-    public void Update(User entity)
+    public Task Update(User entity)
     {
-        _session.Connection.Execute(@"UPDATE users SET
+        return _session.Connection.ExecuteAsync(@"UPDATE users SET
                  email = @Email,
                  first_name = @FirstName,
                  last_name = @LastName,
@@ -39,9 +39,9 @@ public class UserRepository : IUserRepository
                  ", entity, _session.Transaction);
     }
 
-    public void Delete(User entity)
+    public Task Delete(User entity)
     {
-        _session.Connection.Execute(@"UPDATE users SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
@@ -114,24 +114,24 @@ public class UserRepository : IUserRepository
                 u.status = 1 AND u.email = @Email", new { Email = email }, _session.Transaction)!;
     }
 
-    public void AddGroup(GroupUser group)
+    public Task AddGroup(GroupUser group)
     {
-        _session.Connection.Execute(@"INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
+        return _session.Connection.ExecuteAsync(@"INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
                 VALUES (1, @IdUser, @IdGroup, @CreatedBy, GETDATE())", group, _session.Transaction);
     }
 
-    public void RemoveGroup(GroupUser group)
+    public Task RemoveGroup(GroupUser group)
     {
-        _session.Connection.Execute(@"UPDATE users SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
             WHERE id_user = @IdUser AND id_group = @IdGroup AND status = 1", group, _session.Transaction);
     }
 
-    public void RemoveAllGroup(long userId, string updatedBy)
+    public Task RemoveAllGroup(long userId, string updatedBy)
     {
-        _session.Connection.Execute(@"UPDATE users SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()

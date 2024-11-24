@@ -15,15 +15,26 @@ namespace LabReserve.Persistence.Repositories
             _session = session;
         }
 
-        public void Create(Group entity)
+        public Task<long> Create(Group entity)
         {
-            _session.Connection.Execute(@"INSERT INTO groups (status, name, idCourse, created_by, created_date)
-                VALUES (1, @Name, @IdCourse, @CreatedBy, GETDATE())", entity, _session.Transaction);
+            return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO groups (status, name, idCourse, created_by, created_date)
+                VALUES (1, @Name, @IdCourse, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
+        }
+        public Task Update(Group entity)
+        {
+            return _session.Connection.ExecuteAsync(@"UPDATE groups SET
+                 email = @Name,
+                 idCourse = @IdCourse,
+                 updated_by = @UpdatedBy,
+                 updated_date = GETDATE()
+                WHERE
+                    id = @Id AND status = 1",
+                entity, _session.Transaction);
         }
 
-        public void Delete(Group entity)
+        public Task Delete(Group entity)
         {
-            _session.Connection.Execute(@"UPDATE groups SET 
+            return _session.Connection.ExecuteAsync(@"UPDATE groups SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
@@ -66,18 +77,6 @@ namespace LabReserve.Persistence.Repositories
                 Skip = filter?.Skip ?? 0,
                 Size = filter?.Size ?? 1,
             }, _session.Transaction);
-        }
-
-        public void Update(Group entity)
-        {
-            _session.Connection.Execute(@"UPDATE groups SET
-                 email = @Name,
-                 idCourse = @IdCourse,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-                WHERE
-                    id = @Id AND status = 1",
-                entity, _session.Transaction);
         }
     }
 }

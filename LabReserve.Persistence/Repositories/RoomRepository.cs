@@ -15,15 +15,15 @@ public class RoomRepository : IRoomRepository
         _session = session;
     }
 
-    public void Create(Room entity)
+    public Task<long> Create(Room entity)
     {
-        _session.Connection.Execute(@"INSERT INTO rooms (status, name, created_by, created_date)
-                VALUES (1, @Name, @CreatedBy, GETDATE())", entity, _session.Transaction);
+        return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO rooms (status, name, created_by, created_date)
+                VALUES (1, @Name, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
     }
 
-    public void Update(Room entity)
+    public Task Update(Room entity)
     {
-        _session.Connection.Execute(@"UPDATE rooms SET
+        return _session.Connection.ExecuteAsync(@"UPDATE rooms SET
                  email = @Name,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
@@ -32,9 +32,9 @@ public class RoomRepository : IRoomRepository
                entity, _session.Transaction);
     }
 
-    public void Delete(Room entity)
+    public Task Delete(Room entity)
     {
-        _session.Connection.Execute(@"UPDATE rooms SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE rooms SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()

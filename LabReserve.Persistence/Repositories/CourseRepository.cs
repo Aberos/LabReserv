@@ -15,15 +15,26 @@ namespace LabReserve.Persistence.Repositories
             _session = session;
         }
 
-        public void Create(Course entity)
+        public Task<long> Create(Course entity)
         {
-            _session.Connection.Execute(@"INSERT INTO courses (status, name, created_by, created_date)
-                VALUES (1, @Name, @CreatedBy, GETDATE())", entity, _session.Transaction);
+            return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO courses (status, name, created_by, created_date)
+                VALUES (1, @Name, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
         }
 
-        public void Delete(Course entity)
+        public Task Update(Course entity)
         {
-            _session.Connection.Execute(@"UPDATE courses SET 
+            return _session.Connection.ExecuteAsync(@"UPDATE courses SET
+                 email = @Name,
+                 updated_by = @UpdatedBy,
+                 updated_date = GETDATE()
+                WHERE
+                    id = @Id AND status = 1",
+                entity, _session.Transaction);
+        }
+
+        public Task Delete(Course entity)
+        {
+            return _session.Connection.ExecuteAsync(@"UPDATE courses SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
@@ -64,17 +75,6 @@ namespace LabReserve.Persistence.Repositories
                 Skip = filter?.Skip ?? 0,
                 Size = filter?.Size ?? 1,
             }, _session.Transaction);
-        }
-
-        public void Update(Course entity)
-        {
-            _session.Connection.Execute(@"UPDATE courses SET
-                 email = @Name,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-                WHERE
-                    id = @Id AND status = 1",
-                entity, _session.Transaction);
         }
     }
 }
