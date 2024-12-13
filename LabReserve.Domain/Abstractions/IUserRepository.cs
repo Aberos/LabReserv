@@ -4,6 +4,7 @@ namespace LabReserve.Domain.Abstractions;
 
 public interface IUserRepository : IBaseRepository<User>
 {
+    Task UpdatePassword(User entity);
     Task<User?> GetByEmail(string email);
     Task AddGroup(GroupUser group);
     Task RemoveGroup(GroupUser group);

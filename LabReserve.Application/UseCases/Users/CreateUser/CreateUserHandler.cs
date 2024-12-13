@@ -1,5 +1,7 @@
 ﻿using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
+using LabReserve.Domain.Enums;
+using LabReserve.Domain.Helpers;
 using MediatR;
 
 namespace LabReserve.Application.UseCases.Users.CreateUser
@@ -20,10 +22,28 @@ namespace LabReserve.Application.UseCases.Users.CreateUser
 
             var newUser = new User
             {
-
+                Email = request.Email,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Password = UserHelper.EncryptPassword(request.Password),
+                Status = Status.Enable,
+                UserType = request.UserType,
+                Phone = request.Phone,
             };
 
-            _userRepository.Create(newUser);
+            var newUserId = await _userRepository.Create(newUser);
+            if(request.Groups?.Any() ?? false)
+            {
+                foreach (var group in request.Groups) 
+                {
+                    await _userRepository.AddGroup(new GroupUser
+                    {
+                        IdGroup = group,
+                        IdUser = newUserId,
+                        Status = Status.Enable,
+                    });
+                }
+            }
 
             _unitOfWork.Commit();
         }

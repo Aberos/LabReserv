@@ -73,10 +73,25 @@ namespace LabReserve.Persistence.Repositories
                 (@Search is null OR g.name like @Search)",
             new
             {
-                Search = string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
+                Search = !string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
                 Skip = filter?.Skip ?? 0,
                 Size = filter?.Size ?? 1,
             }, _session.Transaction);
+        }
+
+        public Task<IEnumerable<Group>> GetByList(List<long> ids)
+        {
+            return _session.Connection.QueryAsync<Group>(@"SELECT
+                g.id as Id,
+                g.status as Status,
+                g.name as Name,
+                g.idCourse as IdCourse,
+                g.updated_by as UpdatedBy,
+                g.updated_date as UpdatedDate,
+                g.created_by as CreatedBy,
+                g.created_date as CreatedDate
+            FROM groups g
+            WHERE g.id in (@Ids) AND g.status = 1", new { Ids = ids }, _session.Transaction)!;
         }
     }
 }

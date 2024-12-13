@@ -30,6 +30,17 @@ public class UserRepository : IUserRepository
                  first_name = @FirstName,
                  last_name = @LastName,
                  phone = @Phone,
+                 user_type = @UserType,
+                 updated_by = @UpdatedBy,
+                 updated_date = GETDATE()
+                WHERE
+                    id = @Id AND status = 1
+                 ", entity, _session.Transaction);
+    }
+
+    public Task UpdatePassword(User entity)
+    {
+        return _session.Connection.ExecuteAsync(@"UPDATE users SET
                  password = @Password,
                  user_type = @UserType,
                  updated_by = @UpdatedBy,
