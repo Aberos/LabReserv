@@ -1,4 +1,5 @@
 using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Entities;
 using LabReserve.Persistence.Abstractions;
 using LabReserve.Persistence.Database;
 using LabReserve.Persistence.Repositories;
@@ -17,5 +18,7 @@ public static class ServiceExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoomRepository, RoomRepository>();
+        services.AddScoped<IGroupRepository, GroupRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
     }
 }
