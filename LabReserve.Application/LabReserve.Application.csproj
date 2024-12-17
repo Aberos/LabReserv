@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="UseCases\Users\DeleteUser\" />
-    <Folder Include="UseCases\Users\UpdateUser\" />
   </ItemGroup>
 
 </Project>

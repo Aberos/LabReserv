@@ -10,42 +10,53 @@ namespace LabReserve.Application.UseCases.Users.CreateUser
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CreateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        private readonly IAuthService _authService;
+        public CreateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _authService = authService;
         }
 
         public async Task Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            _unitOfWork.BeginTransaction();
-
-            var newUser = new User
+            try
             {
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Password = UserHelper.EncryptPassword(request.Password),
-                Status = Status.Enable,
-                UserType = request.UserType,
-                Phone = request.Phone,
-            };
+                _unitOfWork.BeginTransaction();
 
-            var newUserId = await _userRepository.Create(newUser);
-            if(request.Groups?.Any() ?? false)
-            {
-                foreach (var group in request.Groups) 
+                var newUser = new User
                 {
-                    await _userRepository.AddGroup(new GroupUser
-                    {
-                        IdGroup = group,
-                        IdUser = newUserId,
-                        Status = Status.Enable,
-                    });
-                }
-            }
+                    Email = request.Email,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Password = UserHelper.EncryptPassword(request.Password),
+                    Status = Status.Enable,
+                    UserType = request.UserType,
+                    Phone = request.Phone,
+                    CreatedBy = _authService.Id!.Value
+                };
 
-            _unitOfWork.Commit();
+                var newUserId = await _userRepository.Create(newUser);
+                if(request.Groups?.Any() ?? false)
+                {
+                    foreach (var group in request.Groups) 
+                    {
+                        await _userRepository.AddGroup(new GroupUser
+                        {
+                            IdGroup = group,
+                            IdUser = newUserId,
+                            Status = Status.Enable,
+                        });
+                    }
+                }
+
+                _unitOfWork.Commit();
+            }
+            catch (Exception)
+            {
+                _unitOfWork.Rollback();
+                throw;
+            }
         }
     }
 }

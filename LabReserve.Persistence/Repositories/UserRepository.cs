@@ -140,7 +140,7 @@ public class UserRepository : IUserRepository
             WHERE id_user = @IdUser AND id_group = @IdGroup AND status = 1", group, _session.Transaction);
     }
 
-    public Task RemoveAllGroup(long userId, string updatedBy)
+    public Task RemoveAllGroup(long userId, long updatedBy)
     {
         return _session.Connection.ExecuteAsync(@"UPDATE users SET 
                  status = 2,
