@@ -1,0 +1,100 @@
+﻿@using LabReserve.Domain.Enums;
+@using  LabReserve.Domain.Abstractions;
+@inject IAuthService _authService;
+
+@{ 
+    var url = new Uri(String.Format("{0}://{1}{2}{3}", Context.Request.Scheme, Context.Request.Host, Context.Request.Path, Context.Request.QueryString));
+    var absolutePath = url.AbsolutePath;
+    if (absolutePath?.StartsWith('/') ?? false)
+        absolutePath = absolutePath.Remove(0, 1);
+
+    var path = absolutePath?.Split('/')?.FirstOrDefault()?.ToLower()?.Trim() ?? string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LabReserve</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/jquery-toast/jquery.toast.min.css" />
+    <link rel="stylesheet" href="~/lib/datatables/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/LabReserve.WebApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Lab Reserve</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="w-100 d-flex flex-wrap justify-content-center justify-content-lg-end align-items-center">
+            <span class="text-white"><span data-feather="user" class="me-1"></span> @_authService?.Name</span>
+        </div>
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="auth/sign-out">
+                    <span data-feather="log-out" class="me-1"></span>Sign out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link @(path == "" || path == "home" ? "active": "")" aria-current="page" href="/home">
+                                <span data-feather="calendar"></span>
+                                Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(path == "course" ? "active": "")" href="#">
+                                <span data-feather="list"></span>
+                                Courses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(path == "group" ? "active": "")" href="#">
+                                <span data-feather="layers"></span>
+                                Groups
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(path == "room" ? "active": "")" href="#">
+                                <span data-feather="codepen"></span>
+                                Rooms
+                            </a>
+                        </li>
+
+                        @if (_authService?.UserType == UserType.Admin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(path == "user" ? "active": "")" href="/user">
+                                    <span data-feather="users"></span>
+                                    Users
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-toast/jquery.toast.min.js"></script>
+    <script src="~/lib/datatables/dataTables.min.js"></script>
+    <script src="~/js/feather.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

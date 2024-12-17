@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewBag.Title = "Auth";
+    Layout = "_EmptyLayout";
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("#login-form").submit(function (e) {
+                e.preventDefault();
+                let data = Object.fromEntries([...new FormData(this)]);
+                $('#submit-button').prop("disabled", true);
+                $.ajax({
+                    url: 'auth/sing-in',
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: (res) => {
+                        localStorage.setItem('user', res);
+                        window.location.href = '/home';
+                    },
+                    error: (res) => {
+                        window.toastMessage.error(res);
+                    },
+                    complete: (data) => {
+                        $('#submit-button').prop("disabled", false);
+                    }
+                })
+            });
+        });
+    </script>
+}
+
+<div class="h-100 d-flex align-items-center">
+    <main class="form-signin text-center">
+        <form id="login-form">
+            <h1 class="h3 mb-3 fw-normal">Lab Reserv</h1>
+
+            <div class="form-floating">
+                <input type="email" class="form-control" id="floatingInput" name="email" placeholder="name@example.com">
+                <label for="floatingInput">Email address</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password">
+                <label for="floatingPassword">Password</label>
+            </div>
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" value="true" name="remember"> Remember me
+                </label>
+            </div>
+            <button id="submit-button" class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            <p class="mt-5 mb-3 text-muted">&copy; 2024–2025</p>
+        </form>
+    </main>
+</div>
