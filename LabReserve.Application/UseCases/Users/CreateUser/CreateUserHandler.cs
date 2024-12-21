@@ -1,4 +1,5 @@
-﻿using LabReserve.Domain.Abstractions;
+﻿using FluentValidation;
+using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
 using LabReserve.Domain.Enums;
 using LabReserve.Domain.Helpers;
@@ -11,17 +12,24 @@ namespace LabReserve.Application.UseCases.Users.CreateUser
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuthService _authService;
-        public CreateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService)
+        private readonly IValidator<CreateUserCommand> _validator;
+
+        public CreateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<CreateUserCommand> validator)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _authService = authService;
+            _validator = validator;
         }
 
         public async Task Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
+            var validatorResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (!validatorResult.IsValid)
+                throw new ValidationException(validatorResult.Errors);
+
             try
-            {
+            {             
                 _unitOfWork.BeginTransaction();
 
                 var newUser = new User

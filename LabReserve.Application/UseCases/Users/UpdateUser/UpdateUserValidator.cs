@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Entities;
 
 namespace LabReserve.Application.UseCases.Users.UpdateUser;
 
@@ -13,8 +14,8 @@ public class UpdateUserValidator: AbstractValidator<UpdateUserCommand>
             {
                 if (!string.IsNullOrWhiteSpace(email))
                 {
-                    var emailDB = await userRepository.GetByEmail(email);
-                    if (emailDB is not null)
+                    var userEmail = await userRepository.GetByEmail(email);
+                    if (userEmail is not null && userEmail.Id != context.InstanceToValidate.UserId)
                         context.AddFailure(new ValidationFailure("email", "already registered"));
                 }
             });

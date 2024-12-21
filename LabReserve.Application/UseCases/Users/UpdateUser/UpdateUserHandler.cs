@@ -1,3 +1,4 @@
+using FluentValidation;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
 using LabReserve.Domain.Enums;
@@ -10,15 +11,21 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand>
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthService _authService;
-    public UpdateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService)
+    private readonly IValidator<UpdateUserCommand> _validator;
+    public UpdateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<UpdateUserCommand> validator)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _authService = authService;
+        _validator = validator;
     }
 
     public async Task Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
+        var validatorResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validatorResult.IsValid)
+            throw new ValidationException(validatorResult.Errors);
+
         try
         {
             _unitOfWork.BeginTransaction();
