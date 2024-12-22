@@ -13,12 +13,12 @@ namespace LabReserve.Application.UseCases.Users.CreateUser
                 {
                     if (!string.IsNullOrWhiteSpace(email))
                     {
-                        var emailDB = await userRepository.GetByEmail(email);
-                        if (emailDB is not null)
+                        var userEmail = await userRepository.GetByEmail(email);
+                        if (userEmail is not null)
                             context.AddFailure(new ValidationFailure("email", "already registered"));
                     }
                 });
-            
+
             RuleFor(request => request.Groups)
                 .CustomAsync(async (groups, context, cancellationToken) =>
                 {

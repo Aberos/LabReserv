@@ -55,6 +55,20 @@ public class RoomRepository : IRoomRepository
             WHERE r.id = @Id AND r.status = 1", new { Id = id }, _session.Transaction)!;
     }
 
+    public Task<Room> GetByName(string name)
+    {
+        return _session.Connection.QueryFirstOrDefaultAsync<Room>(@"SELECT
+                r.id as Id,
+                r.status as Status,
+                r.name as Name,
+                r.updated_by as UpdatedBy,
+                r.updated_date as UpdatedDate,
+                r.created_by as CreatedBy,
+                r.created_date as CreatedDate
+            FROM rooms r
+            WHERE r.name = @Name AND r.status = 1", new { Name = name }, _session.Transaction)!;
+    }
+
     public Task<IEnumerable<Room>> GetAll(FilterRequestDto filter)
     {
         return _session.Connection.QueryAsync<Room>(@"SELECT
