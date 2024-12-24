@@ -20,7 +20,6 @@
   <ItemGroup>
     <Folder Include="UseCases\Courses\" />
     <Folder Include="UseCases\Groups\" />
-    <Folder Include="UseCases\Rooms\DeleteRoom\" />
     <Folder Include="UseCases\Rooms\GetRooms\" />
     <Folder Include="UseCases\Rooms\GetRoom\" />
   </ItemGroup>
