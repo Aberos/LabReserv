@@ -1,9 +1,15 @@
 ﻿services:
-  # webapp:
-  #   image: labreserve.webapp
-  #   build:
-  #     context: .
-  #     dockerfile: LabReserve.WebApp/Dockerfile
+  webapp:
+    build:
+      context: .
+      dockerfile: LabReserve.WebApp/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ConnectionStrings__Default=Server=sqlserver;Database=LabReserve;User=sa;Password=lab102030!;TrustServerCertificate=True
+    networks:
+      - labreserve-network
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -15,6 +21,8 @@
         - "1433:1433"
     volumes:
       - database_data:/var/opt/mssql
+    networks:
+      - labreserve-network
      
   mssqltools:
     image: mcr.microsoft.com/mssql-tools
@@ -24,7 +32,13 @@
         - ./schema.sql:/tmp/schema.sql
         - ./init-schema.sh:/tmp/init-schema.sh
     command: /bin/bash ./tmp/init-schema.sh
+    networks:
+      - labreserve-network
 
 volumes:
   database_data:
     driver: local
+  
+networks:
+  labreserve-network:
+    driver: bridge
