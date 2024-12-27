@@ -56,6 +56,21 @@ namespace LabReserve.Persistence.Repositories
             WHERE g.id = @Id AND g.status = 1", new { Id = id }, _session.Transaction)!;
         }
 
+        public Task<Group> GetByName(string name)
+        {
+            return _session.Connection.QueryFirstOrDefaultAsync<Group>(@"SELECT
+                g.id as Id,
+                g.status as Status,
+                g.name as Name,
+                g.idCourse as IdCourse,
+                g.updated_by as UpdatedBy,
+                g.updated_date as UpdatedDate,
+                g.created_by as CreatedBy,
+                g.created_date as CreatedDate
+            FROM groups g
+            WHERE TRIM(g.name) = TRIM(@Name) AND g.status = 1", new { Name = name }, _session.Transaction)!;
+        }
+
         public Task<IEnumerable<Group>> GetAll(FilterRequestDto filter)
         {
             return _session.Connection.QueryAsync<Group>(@"SELECT

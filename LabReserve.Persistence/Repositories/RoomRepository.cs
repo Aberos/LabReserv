@@ -28,7 +28,7 @@ public class RoomRepository : IRoomRepository
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
                 WHERE
-                    id = @Id AND status = 1", 
+                    id = @Id AND status = 1",
                entity, _session.Transaction);
     }
 
@@ -66,7 +66,7 @@ public class RoomRepository : IRoomRepository
                 r.created_by as CreatedBy,
                 r.created_date as CreatedDate
             FROM rooms r
-            WHERE r.name = @Name AND r.status = 1", new { Name = name }, _session.Transaction)!;
+            WHERE TRIM(r.name) = TRIM(@Name) AND r.status = 1", new { Name = name }, _session.Transaction)!;
     }
 
     public Task<IEnumerable<Room>> GetAll(FilterRequestDto filter)
