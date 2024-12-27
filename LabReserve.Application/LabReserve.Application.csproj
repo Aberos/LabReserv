@@ -17,8 +17,4 @@
     <ProjectReference Include="..\LabReserve.Domain\LabReserve.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UseCases\Groups\" />
-  </ItemGroup>
-
 </Project>
