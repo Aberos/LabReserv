@@ -2,7 +2,9 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Courses.UpdateCourse;
 
-public record UpdateCourseCommand(string Name, long CourseId) : IRequest
+public class UpdateCourseCommand : IRequest
 {
+    public string Name { get; set; }
 
+    public long CourseId { get; set; }
 }

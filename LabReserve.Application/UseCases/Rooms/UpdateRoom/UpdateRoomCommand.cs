@@ -2,7 +2,8 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Rooms.UpdateRoom;
 
-public record UpdateRoomCommand(string Name, long RoomId) : IRequest
+public class UpdateRoomCommand : IRequest
 {
-
+    public long RoomId { get; set; }
+    public string Name { get; set; }
 }

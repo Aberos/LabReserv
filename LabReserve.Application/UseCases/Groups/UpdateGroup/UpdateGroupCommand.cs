@@ -2,7 +2,9 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Groups.UpdateGroup;
 
-public record UpdateGroupCommand(string Name, long CourseId, long GroupId) : IRequest
+public class UpdateGroupCommand : IRequest
 {
-
+    public string Name { get; set; }
+    public long CourseId { get; set; }
+    public long GroupId { get; set; }
 }
