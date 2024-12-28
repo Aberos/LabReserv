@@ -1,10 +1,11 @@
 using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
 using MediatR;
 
 namespace LabReserve.Application.UseCases.Groups.GetGroups;
 
-public class GetGroupsHandler : IRequestHandler<GetGroupsQuery, IEnumerable<Group>>
+public class GetGroupsHandler : IRequestHandler<GetGroupsQuery, FilterResponseDto<Group>>
 {
     private readonly IGroupRepository _groupRepository;
     public GetGroupsHandler(IGroupRepository groupRepository)
@@ -12,8 +13,8 @@ public class GetGroupsHandler : IRequestHandler<GetGroupsQuery, IEnumerable<Grou
         _groupRepository = groupRepository;
     }
 
-    public Task<IEnumerable<Group>> Handle(GetGroupsQuery request, CancellationToken cancellationToken)
+    public Task<FilterResponseDto<Group>> Handle(GetGroupsQuery request, CancellationToken cancellationToken)
     {
-        return _groupRepository.GetAll(request);
+        return _groupRepository.GetFilteredList(request);
     }
 }

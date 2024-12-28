@@ -69,26 +69,52 @@ namespace LabReserve.Persistence.Repositories
             WHERE TRIM(c.name) = TRIM(@Name) AND c.status = 1", new { Name = name }, _session.Transaction)!;
         }
 
-        public Task<IEnumerable<Course>> GetAll(FilterRequestDto filter)
+        public async Task<FilterResponseDto<Course>> GetFilteredList(FilterRequestDto filter)
         {
-            return _session.Connection.QueryAsync<Course>(@"SELECT
-                c.id as Id,
-                c.status as Status,
-                c.name as Name,
-                c.updated_by as UpdatedBy,
-                c.updated_date as UpdatedDate,
-                c.created_by as CreatedBy,
-                c.created_date as CreatedDate
-            FROM courses c
-            WHERE 
-                c.status = 1 AND
-                (@Search is null OR c.name like @Search)",
-            new
+            var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
+            var requestPage = filter?.Page ?? 1;
+            var size = filter?.PageSize ?? 10;
+            var skip = (requestPage - 1) * size;
+            var requestId = filter?.RequestId ?? 1;
+
+            var query = @"
+                SELECT
+                    c.id as Id,
+                    c.status as Status,
+                    c.name as Name,
+                    c.updated_by as UpdatedBy,
+                    c.updated_date as UpdatedDate,
+                    c.created_by as CreatedBy,
+                    c.created_date as CreatedDate
+                FROM courses c
+                WHERE 
+                    c.status = 1 AND
+                    (@Search IS NULL OR c.name LIKE @Search)
+                ORDER BY c.name
+                OFFSET @Skip ROWS FETCH NEXT @Size ROWS ONLY;
+
+                SELECT COUNT(*) 
+                FROM courses c
+                WHERE 
+                    c.status = 1 AND
+                    (@Search IS NULL OR c.name LIKE @Search);";
+
+            using var multi = await _session.Connection
+                .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+            var data = multi.Read<Course>().ToList();
+            var totalCount = multi.ReadFirst<int>();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
+            var currentPage = (skip / size) + 1;
+
+            return new FilterResponseDto<Course>
             {
-                Search = string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
-                Skip = filter?.Skip ?? 0,
-                Size = filter?.Size ?? 1,
-            }, _session.Transaction);
+                Data = data,
+                TotalCount = totalCount,
+                Page = currentPage,
+                TotalPages = totalPages,
+                RequestId = requestId,
+            };
         }
     }
 }

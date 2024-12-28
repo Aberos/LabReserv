@@ -4,7 +4,7 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Courses.GetCourses;
 
-public class GetCoursesQuery : FilterRequestDto, IRequest<IEnumerable<Course>>
+public class GetCoursesQuery : FilterRequestDto, IRequest<FilterResponseDto<Course>>
 {
 
 }

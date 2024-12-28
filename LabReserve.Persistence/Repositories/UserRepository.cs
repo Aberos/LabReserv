@@ -78,9 +78,16 @@ public class UserRepository : IUserRepository
             WHERE u.id = @Id AND u.status = 1", new { Id = id }, _session.Transaction)!;
     }
 
-    public Task<IEnumerable<User>> GetAll(FilterRequestDto filter)
+    public async Task<FilterResponseDto<User>> GetFilteredList(FilterRequestDto filter)
     {
-        return _session.Connection.QueryAsync<User>(@"SELECT
+        var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
+        var requestPage = filter?.Page ?? 1;
+        var size = filter?.PageSize ?? 10;
+        var skip = (requestPage - 1) * size;
+        var requestId = filter?.RequestId ?? 1;
+
+        var query = @"
+            SELECT
                 u.id as Id,
                 u.status as Status,
                 u.email as Email,
@@ -96,13 +103,32 @@ public class UserRepository : IUserRepository
             FROM users u
             WHERE 
                 u.status = 1 AND
-                (@Search is null OR u.email like @Search OR u.first_name like @Search OR u.last_name like @Search OR u.phone like @Search)",
-            new
-            {
-                Search = string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
-                Skip = filter?.Skip ?? 0,
-                Size = filter?.Size ?? 1,
-            }, _session.Transaction);
+                (@Search IS NULL OR u.email LIKE @Search OR u.first_name LIKE @Search OR u.last_name LIKE @Search OR u.phone LIKE @Search)
+            ORDER BY u.email
+            OFFSET @Skip ROWS FETCH NEXT @Size ROWS ONLY;
+
+            SELECT COUNT(*) 
+            FROM users u
+            WHERE 
+                u.status = 1 AND
+                (@Search IS NULL OR u.email LIKE @Search OR u.first_name LIKE @Search OR u.last_name LIKE @Search OR u.phone LIKE @Search);";
+
+        using var multi = await _session.Connection
+            .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+        var data = multi.Read<User>().ToList();
+        var totalCount = multi.ReadFirst<int>();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)size);
+        var currentPage = (skip / size) + 1;
+
+        return new FilterResponseDto<User>
+        {
+            Data = data,
+            TotalCount = totalCount,
+            Page = currentPage,
+            TotalPages = totalPages,
+            RequestId = requestId
+        };
     }
 
     public Task<User?> GetByEmail(string email)

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Groups.GetGroups;
 
-public class GetGroupsQuery : FilterRequestDto, IRequest<IEnumerable<Group>>
+public class GetGroupsQuery : FilterRequestDto, IRequest<FilterResponseDto<Group>>
 {
 
 }

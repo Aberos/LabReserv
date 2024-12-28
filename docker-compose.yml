@@ -1,15 +1,15 @@
 ﻿services:
-  webapp:
-    build:
-      context: .
-      dockerfile: LabReserve.WebApp/Dockerfile
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-    environment:
-      - ConnectionStrings__Default=Server=sqlserver;Database=LabReserve;User=sa;Password=lab102030!;TrustServerCertificate=True
-    networks:
-      - labreserve-network
+  # webapp:
+  #   build:
+  #     context: .
+  #     dockerfile: LabReserve.WebApp/Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #     - "8081:8081"
+  #   environment:
+  #     - ConnectionStrings__Default=Server=sqlserver;Database=LabReserve;User=sa;Password=lab102030!;TrustServerCertificate=True
+  #   networks:
+  #     - labreserve-network
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest

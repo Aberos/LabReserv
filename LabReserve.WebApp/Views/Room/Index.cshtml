@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Rooms";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            window.tables.init('table-room', [
+                { data: 'name', title: 'Name', width: '70%' },
+                {
+                    data: 'options',
+                    title: 'Options',
+                    width: '30%',
+                    render: function (data, type, row) {
+                        return `<button class="btn btn-sm btn-primary btn-edit" data-id="${row.id}">Edit</button>
+                                <button class="btn btn-sm btn-danger btn-delete" data-id="${row.id}">Delete</button> `;
+                    }
+                }
+            ], '/room/list');
+
+            $(document).on('table-room-add', function () {
+
+            });
+        });
+    </script>
+}
+
+<div class="container-fluid">
+    <h1>Rooms</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table id="table-room">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

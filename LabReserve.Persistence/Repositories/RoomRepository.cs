@@ -69,25 +69,52 @@ public class RoomRepository : IRoomRepository
             WHERE TRIM(r.name) = TRIM(@Name) AND r.status = 1", new { Name = name }, _session.Transaction)!;
     }
 
-    public Task<IEnumerable<Room>> GetAll(FilterRequestDto filter)
+    public async Task<FilterResponseDto<Room>> GetFilteredList(FilterRequestDto filter)
     {
-        return _session.Connection.QueryAsync<Room>(@"SELECT
-                r.id as Id,
-                r.status as Status,
-                r.name as Name,
-                r.updated_by as UpdatedBy,
-                r.updated_date as UpdatedDate,
-                r.created_by as CreatedBy,
-                r.created_date as CreatedDate
-            FROM rooms r
-            WHERE 
-                r.status = 1 AND
-                (@Search is null OR r.name like @Search)",
-            new
-            {
-                Search = string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
-                Skip = filter?.Skip ?? 0,
-                Size = filter?.Size ?? 1,
-            }, _session.Transaction);
+        var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
+        var requestPage = filter?.Page ?? 1;
+        var size = filter?.PageSize ?? 10;
+        var skip = (requestPage - 1) * size;
+        var requestId = filter?.RequestId ?? 1;
+
+        var query = @"
+                    SELECT
+                        r.id as Id,
+                        r.status as Status,
+                        r.name as Name,
+                        r.updated_by as UpdatedBy,
+                        r.updated_date as UpdatedDate,
+                        r.created_by as CreatedBy,
+                        r.created_date as CreatedDate
+                    FROM rooms r
+                    WHERE 
+                        r.status = 1 AND
+                        (@Search IS NULL OR r.name LIKE @Search)
+                    ORDER BY r.name
+                    OFFSET @Skip ROWS FETCH NEXT @Size ROWS ONLY;
+
+                    SELECT COUNT(*) 
+                    FROM rooms r
+                    WHERE 
+                        r.status = 1 AND
+                        (@Search IS NULL OR r.name LIKE @Search);";
+
+        using var multi = await _session.Connection
+            .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+
+        var data = multi.Read<Room>().ToList();
+        var totalCount = multi.ReadFirst<int>();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)size);
+        var currentPage = (skip / size) + 1;
+
+        return new FilterResponseDto<Room>
+        {
+            Data = data,
+            TotalCount = totalCount,
+            Page = currentPage,
+            TotalPages = totalPages,
+            RequestId = requestId
+        };
     }
 }

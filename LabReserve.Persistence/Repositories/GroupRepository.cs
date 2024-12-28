@@ -71,27 +71,53 @@ namespace LabReserve.Persistence.Repositories
             WHERE TRIM(g.name) = TRIM(@Name) AND g.status = 1", new { Name = name }, _session.Transaction)!;
         }
 
-        public Task<IEnumerable<Group>> GetAll(FilterRequestDto filter)
+        public async Task<FilterResponseDto<Group>> GetFilteredList(FilterRequestDto filter)
         {
-            return _session.Connection.QueryAsync<Group>(@"SELECT
-                g.id as Id,
-                g.status as Status,
-                g.name as Name,
-                g.idCourse as IdCourse,
-                g.updated_by as UpdatedBy,
-                g.updated_date as UpdatedDate,
-                g.created_by as CreatedBy,
-                g.created_date as CreatedDate
-            FROM groups g
-            WHERE 
-                g.status = 1 AND
-                (@Search is null OR g.name like @Search)",
-            new
+            var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
+            var requestPage = filter?.Page ?? 1;
+            var size = filter?.PageSize ?? 10;
+            var skip = (requestPage - 1) * size;
+            var requestId = filter?.RequestId ?? 1;
+
+            var query = @"
+                SELECT
+                    g.id as Id,
+                    g.status as Status,
+                    g.name as Name,
+                    g.idCourse as IdCourse,
+                    g.updated_by as UpdatedBy,
+                    g.updated_date as UpdatedDate,
+                    g.created_by as CreatedBy,
+                    g.created_date as CreatedDate
+                FROM groups g
+                WHERE 
+                    g.status = 1 AND
+                    (@Search IS NULL OR g.name LIKE @Search)
+                ORDER BY g.name
+                OFFSET @Skip ROWS FETCH NEXT @Size ROWS ONLY;
+
+                SELECT COUNT(*) 
+                FROM groups g
+                WHERE 
+                    g.status = 1 AND
+                    (@Search IS NULL OR g.name LIKE @Search);";
+
+            using var multi = await _session.Connection
+                .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+            var data = multi.Read<Group>().ToList();
+            var totalCount = multi.ReadFirst<int>();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
+            var currentPage = (skip / size) + 1;
+
+            return new FilterResponseDto<Group>
             {
-                Search = !string.IsNullOrWhiteSpace(filter?.Search) ? $"%{filter.Search}%" : null,
-                Skip = filter?.Skip ?? 0,
-                Size = filter?.Size ?? 1,
-            }, _session.Transaction);
+                Data = data,
+                TotalCount = totalCount,
+                Page = currentPage,
+                TotalPages = totalPages,
+                RequestId = requestId
+            };
         }
 
         public Task<IEnumerable<Group>> GetByList(List<long> ids)

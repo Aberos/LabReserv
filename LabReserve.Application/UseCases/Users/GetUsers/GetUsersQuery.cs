@@ -4,7 +4,7 @@ using MediatR;
 
 namespace LabReserve.Application.UseCases.Users.GetUsers
 {
-    public class GetUsersQuery : FilterRequestDto, IRequest<IEnumerable<User>>
+    public class GetUsersQuery : FilterRequestDto, IRequest<FilterResponseDto<User>>
     {
     }
 }

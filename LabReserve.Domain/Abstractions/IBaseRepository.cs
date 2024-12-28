@@ -9,5 +9,5 @@ public interface IBaseRepository<T> where T : BaseEntity
     Task Update(T entity);
     Task Delete(T entity);
     Task<T> Get(long id);
-    Task<IEnumerable<T>> GetAll(FilterRequestDto filter);
+    Task<FilterResponseDto<T>> GetFilteredList(FilterRequestDto filter);
 }

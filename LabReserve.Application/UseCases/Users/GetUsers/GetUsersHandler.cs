@@ -1,10 +1,11 @@
 ﻿using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
 using MediatR;
 
 namespace LabReserve.Application.UseCases.Users.GetUsers
 {
-    public class GetUsersHandler : IRequestHandler<GetUsersQuery, IEnumerable<User>>
+    public class GetUsersHandler : IRequestHandler<GetUsersQuery, FilterResponseDto<User>>
     {
         private readonly IUserRepository _userReposistory;
         public GetUsersHandler(IUserRepository userReposistory)
@@ -13,9 +14,9 @@ namespace LabReserve.Application.UseCases.Users.GetUsers
         }
 
 
-        public Task<IEnumerable<User>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+        public Task<FilterResponseDto<User>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
-            return _userReposistory.GetAll(request);
+            return _userReposistory.GetFilteredList(request);
         }
     }
 }
