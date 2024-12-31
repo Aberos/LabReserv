@@ -18,7 +18,8 @@ public class RoomRepository : IRoomRepository
     public Task<long> Create(Room entity)
     {
         return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO rooms (status, name, created_by, created_date)
-                VALUES (1, @Name, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
+        OUTPUT INSERTED.id
+        VALUES (1, @Name, @CreatedBy, GETDATE())", entity, _session.Transaction);
     }
 
     public Task Update(Room entity)

@@ -1,5 +1,6 @@
 using FluentValidation;
 using LabReserve.Application.UseCases.Rooms.CreateRoom;
+using LabReserve.Application.UseCases.Rooms.DeleteRoom;
 using LabReserve.Application.UseCases.Rooms.GetRoom;
 using LabReserve.Application.UseCases.Rooms.GetRooms;
 using LabReserve.Application.UseCases.Rooms.UpdateRoom;
@@ -92,5 +93,21 @@ namespace LabReserve.WebApp.Controllers
                 return BadRequest("error creating room");
             }
         }
+
+        [HttpDelete]
+        [Route("{controller}/{roomId}")]
+        public async Task<IActionResult> Delete(long roomId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await mediator.Send(new DeleteRoomCommand(roomId), cancellationToken);
+                return Ok("room deleted");
+            }
+            catch (Exception)
+            {
+                return BadRequest("error deleting room");
+            }
+        }
+
     }
 }

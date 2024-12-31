@@ -40,8 +40,36 @@ window.toastMessage = {
 
 
 window.tables = {
-    init: (id, columns, path) => {
-        return $(`#${id}`).DataTable({
+    init: (id, columns, path, enableOptions = true) => {
+        if (enableOptions) {
+            if (!columns)
+                columns = [];
+
+            columns.push({
+                data: 'id',
+                title: 'Options',
+                width: '30%',
+                className: 'text-end',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    $(td).html(`
+                        <button class="btn btn-sm btn-secondary btn-edit" data-id="${rowData.id}"><i class="bi bi-pen"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-id="${rowData.id}"><i class="bi bi-trash"></i> Delete</button>
+                    `);
+
+
+                    $(td).find('.btn-edit').on('click', function () {
+                        $(document).trigger(`${id}-edit`, [rowData.id]);
+                    });
+
+                    $(td).find('.btn-delete').on('click', function () {
+                        var rowId = $(this).data('id');
+                        $('#confirmDeleteModal').data('rowId', rowId).modal('show');
+                    });
+                }
+            });
+        }
+
+        let table = $(`#${id}`).DataTable({
             ordering: false,
             serverSide: true,
             ajax: {
@@ -73,7 +101,7 @@ window.tables = {
                 topStart: {
                     buttons: [
                         {
-                            text: 'Add',
+                            text: '<i class="bi bi-plus"></i> Add',
                             className: 'btn btn-sm btn-primary',
                             action: function (e, dt, node, config) {
                                 $(document).trigger(`${id}-add`);
@@ -83,6 +111,19 @@ window.tables = {
                 }
             }
         });
+
+        $('#confirmDeleteButton').on('click', function () {
+            var rowId = $('#confirmDeleteModal').data('rowId');
+            $(document).trigger(`${id}-delete`, [rowId]);
+            document.activeElement.blur();
+            $('#confirmDeleteModal').modal('hide');
+        });
+
+        $('#confirmDeleteModal').on('hidden.bs.modal', function () {
+            $('#confirmDeleteButton').blur();
+        });
+
+        return table;
     }
 }
 
@@ -94,5 +135,15 @@ window.utils = {
         } catch (e) {
             return false;
         }
+    }
+}
+
+window.loading = {
+    show: () => {
+        $('#loadingOverlay').css('display', 'flex');
+    },
+
+    hide: () => {
+        $('#loadingOverlay').css('display', 'none');
     }
 }

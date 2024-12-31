@@ -18,9 +18,9 @@ public class UserRepository : IUserRepository
 
     public Task<long> Create(User entity)
     {
-        return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO users 
-                (status, email, first_name, last_name, phone, password, user_type, created_by, created_date)
-                VALUES (1, @Email, @FirstName, @LastName, @Phone, @Password, @UserType, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
+        return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO users(status, email, first_name, last_name, phone, password, user_type, created_by, created_date)
+                OUTPUT INSERTED.id
+                VALUES (1, @Email, @FirstName, @LastName, @Phone, @Password, @UserType, @CreatedBy, GETDATE())", entity, _session.Transaction);
     }
 
     public Task Update(User entity)

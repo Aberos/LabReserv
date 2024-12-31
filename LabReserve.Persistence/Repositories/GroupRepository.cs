@@ -18,7 +18,8 @@ namespace LabReserve.Persistence.Repositories
         public Task<long> Create(Group entity)
         {
             return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO groups (status, name, idCourse, created_by, created_date)
-                VALUES (1, @Name, @IdCourse, @CreatedBy, GETDATE()) RETURNING id", entity, _session.Transaction);
+                OUTPUT INSERTED.id
+                VALUES (1, @Name, @IdCourse, @CreatedBy, GETDATE())", entity, _session.Transaction);
         }
         public Task Update(Group entity)
         {

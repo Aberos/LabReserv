@@ -38,7 +38,7 @@ public class CreateRoomHandler : IRequestHandler<CreateRoomCommand>
             await _roomRepository.Create(newRoom);
             _unitOfWork.Commit();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             _unitOfWork.Rollback();
             throw;
