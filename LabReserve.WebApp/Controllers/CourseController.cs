@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LabReserve.Application.UseCases.Courses.CreateCourse;
+using LabReserve.Application.UseCases.Courses.DeleteCourse;
 using LabReserve.Application.UseCases.Courses.GetCourse;
 using LabReserve.Application.UseCases.Courses.GetCourses;
 using LabReserve.Application.UseCases.Courses.UpdateCourse;
@@ -90,6 +91,21 @@ namespace LabReserve.WebApp.Controllers
             catch (Exception)
             {
                 return BadRequest("error creating courses");
+            }
+        }
+
+        [HttpDelete]
+        [Route("{controller}/{courseId}")]
+        public async Task<IActionResult> Delete(long courseId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await mediator.Send(new DeleteCourseCommand(courseId), cancellationToken);
+                return Ok("course deleted");
+            }
+            catch (Exception)
+            {
+                return BadRequest("error deleting course");
             }
         }
     }

@@ -108,6 +108,5 @@ namespace LabReserve.WebApp.Controllers
                 return BadRequest("error deleting room");
             }
         }
-
     }
 }
