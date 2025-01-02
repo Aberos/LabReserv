@@ -32,7 +32,7 @@ public class CreateGroupHandler : IRequestHandler<CreateGroupCommand>
             var newGroup = new Group
             {
                 Name = request.Name,
-                IdCourse = request.CourseId,
+                CourseId = request.CourseId,
                 CreatedBy = _authService.Id!.Value
             };
 

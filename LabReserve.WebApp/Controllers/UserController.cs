@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using LabReserve.Application.Extensions;
 using LabReserve.Application.UseCases.Users.CreateUser;
 using LabReserve.Application.UseCases.Users.GetUser;
 using LabReserve.Application.UseCases.Users.GetUsers;
@@ -63,7 +64,7 @@ public class UserController(IMediator mediator) : Controller
         }
         catch (ValidationException e)
         {
-            return BadRequest(e);
+            return BadRequest(e.GetValidationErrors());
         }
         catch (Exception)
         {
@@ -85,7 +86,7 @@ public class UserController(IMediator mediator) : Controller
         }
         catch (ValidationException e)
         {
-            return BadRequest(e);
+            return BadRequest(e.GetValidationErrors());
         }
         catch (Exception)
         {

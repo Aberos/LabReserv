@@ -1,4 +1,5 @@
 using FluentValidation;
+using LabReserve.Application.Extensions;
 using LabReserve.Application.UseCases.Rooms.CreateRoom;
 using LabReserve.Application.UseCases.Rooms.DeleteRoom;
 using LabReserve.Application.UseCases.Rooms.GetRoom;
@@ -64,7 +65,7 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {
@@ -86,7 +87,7 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {

@@ -1,4 +1,6 @@
-﻿using LabReserve.Application.UseCases.Users.UserSignIn;
+﻿using FluentValidation;
+using LabReserve.Application.Extensions;
+using LabReserve.Application.UseCases.Users.UserSignIn;
 using LabReserve.Application.UseCases.Users.UserSignOut;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +17,7 @@ namespace LabReserve.WebApp.Controllers
         }
 
         [Route("access-denied")]
-        public IActionResult AccessDenied() 
+        public IActionResult AccessDenied()
         {
             return View();
         }
@@ -29,6 +31,10 @@ namespace LabReserve.WebApp.Controllers
             {
                 await mediator.Send(request, cancellationToken);
                 return Ok();
+            }
+            catch (ValidationException e)
+            {
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception e)
             {

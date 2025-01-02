@@ -1,5 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using LabReserve.Application.Extensions;
+using LabReserve.Application.UseCases.Courses.GetCourses;
 using LabReserve.Application.UseCases.Groups.CreateGroup;
+using LabReserve.Application.UseCases.Groups.DeleteGroup;
 using LabReserve.Application.UseCases.Groups.GetGroup;
 using LabReserve.Application.UseCases.Groups.GetGroups;
 using LabReserve.Application.UseCases.Groups.UpdateGroup;
@@ -63,7 +66,7 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {
@@ -85,11 +88,41 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {
                 return BadRequest("error creating group");
+            }
+        }
+
+        [HttpDelete]
+        [Route("{controller}/{groupId}")]
+        public async Task<IActionResult> Delete(long groupId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await mediator.Send(new DeleteGroupCommand(groupId), cancellationToken);
+                return Ok("group deleted");
+            }
+            catch (Exception)
+            {
+                return BadRequest("error deleting group");
+            }
+        }
+
+        [HttpGet]
+        [Route("{controller}/courses")]
+        public async Task<IActionResult> ListCourses([FromQuery] GetCoursesQuery query, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await mediator.Send(query, cancellationToken);
+                return Json(result);
+            }
+            catch (Exception)
+            {
+                return BadRequest("error when listing courses");
             }
         }
     }

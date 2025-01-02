@@ -17,15 +17,15 @@ namespace LabReserve.Persistence.Repositories
 
         public Task<long> Create(Group entity)
         {
-            return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO groups (status, name, idCourse, created_by, created_date)
+            return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO groups (status, name, id_course, created_by, created_date)
                 OUTPUT INSERTED.id
-                VALUES (1, @Name, @IdCourse, @CreatedBy, GETDATE())", entity, _session.Transaction);
+                VALUES (1, @Name, @CourseId, @CreatedBy, GETDATE())", entity, _session.Transaction);
         }
         public Task Update(Group entity)
         {
             return _session.Connection.ExecuteAsync(@"UPDATE groups SET
                  name = @Name,
-                 idCourse = @IdCourse,
+                 id_course = @CourseId,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
                 WHERE
@@ -42,34 +42,66 @@ namespace LabReserve.Persistence.Repositories
             WHERE id = @Id AND status = 1", entity, _session.Transaction);
         }
 
-        public Task<Group> Get(long id)
+        public async Task<Group> Get(long id)
         {
-            return _session.Connection.QueryFirstOrDefaultAsync<Group>(@"SELECT
-                g.id as Id,
-                g.status as Status,
-                g.name as Name,
-                g.idCourse as IdCourse,
-                g.updated_by as UpdatedBy,
-                g.updated_date as UpdatedDate,
-                g.created_by as CreatedBy,
-                g.created_date as CreatedDate
-            FROM groups g
-            WHERE g.id = @Id AND g.status = 1", new { Id = id }, _session.Transaction)!;
+            var query = @"
+                SELECT
+                    g.id as Id,
+                    g.status as Status,
+                    g.name as Name,
+                    g.updated_by as UpdatedBy,
+                    g.updated_date as UpdatedDate,
+                    g.created_by as CreatedBy,
+                    g.created_date as CreatedDate,
+                    c.id as CourseId,
+                    c.name as CourseName,
+                    c.status as CourseStatus,
+                    c.updated_by as CourseUpdatedBy,
+                    c.updated_date as CourseUpdatedDate,
+                    c.created_by as CourseCreatedBy,
+                    c.created_date as CourseCreatedDate
+                FROM groups g
+                LEFT JOIN courses c ON g.id_course = c.id
+                WHERE g.id = @Id AND g.status = 1";
+
+            var result = await _session.Connection.QueryAsync<Group, Course, Group>(query, (group, course) =>
+            {
+                group.Course = course;
+                return group;
+            }, new { Id = id }, _session.Transaction, splitOn: "CourseId");
+
+            return result?.FirstOrDefault()!;
         }
 
-        public Task<Group> GetByName(string name)
+        public async Task<Group> GetByName(string name)
         {
-            return _session.Connection.QueryFirstOrDefaultAsync<Group>(@"SELECT
-                g.id as Id,
-                g.status as Status,
-                g.name as Name,
-                g.idCourse as IdCourse,
-                g.updated_by as UpdatedBy,
-                g.updated_date as UpdatedDate,
-                g.created_by as CreatedBy,
-                g.created_date as CreatedDate
-            FROM groups g
-            WHERE TRIM(g.name) = TRIM(@Name) AND g.status = 1", new { Name = name }, _session.Transaction)!;
+            var query = @"
+                SELECT
+                    g.id as Id,
+                    g.status as Status,
+                    g.name as Name,
+                    g.updated_by as UpdatedBy,
+                    g.updated_date as UpdatedDate,
+                    g.created_by as CreatedBy,
+                    g.created_date as CreatedDate,
+                    c.id as CourseId,
+                    c.name as CourseName,
+                    c.status as CourseStatus,
+                    c.updated_by as CourseUpdatedBy,
+                    c.updated_date as CourseUpdatedDate,
+                    c.created_by as CourseCreatedBy,
+                    c.created_date as CourseCreatedDate
+                FROM groups g
+                LEFT JOIN courses c ON g.id_course = c.id
+                WHERE TRIM(g.name) = TRIM(@Name) AND g.status = 1";
+
+            var result = await _session.Connection.QueryAsync<Group, Course, Group>(query, (group, course) =>
+            {
+                group.Course = course;
+                return group;
+            }, new { Name = name }, _session.Transaction, splitOn: "CourseId");
+
+            return result!.FirstOrDefault()!;
         }
 
         public async Task<FilterResponseDto<Group>> GetFilteredList(FilterRequestDto filter)
@@ -85,12 +117,19 @@ namespace LabReserve.Persistence.Repositories
                     g.id as Id,
                     g.status as Status,
                     g.name as Name,
-                    g.idCourse as IdCourse,
                     g.updated_by as UpdatedBy,
                     g.updated_date as UpdatedDate,
                     g.created_by as CreatedBy,
-                    g.created_date as CreatedDate
+                    g.created_date as CreatedDate,
+                    c.id as CourseId,
+                    c.name as CourseName,
+                    c.status as CourseStatus,
+                    c.updated_by as CourseUpdatedBy,
+                    c.updated_date as CourseUpdatedDate,
+                    c.created_by as CourseCreatedBy,
+                    c.created_date as CourseCreatedDate
                 FROM groups g
+                LEFT JOIN courses c ON g.id_course = c.id
                 WHERE 
                     g.status = 1 AND
                     (@Search IS NULL OR g.name LIKE @Search)
@@ -103,9 +142,13 @@ namespace LabReserve.Persistence.Repositories
                     g.status = 1 AND
                     (@Search IS NULL OR g.name LIKE @Search);";
 
-            using var multi = await _session.Connection
-                .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
-            var data = multi.Read<Group>().ToList();
+            using var multi = await _session.Connection.QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+            var groups = multi.Read<Group, Course, Group>((group, course) =>
+            {
+                group.Course = course;
+                return group;
+            }, splitOn: "CourseId").ToList();
+
             var totalCount = multi.ReadFirst<int>();
 
             var totalPages = (int)Math.Ceiling(totalCount / (double)size);
@@ -113,7 +156,7 @@ namespace LabReserve.Persistence.Repositories
 
             return new FilterResponseDto<Group>
             {
-                Data = data,
+                Data = groups,
                 TotalCount = totalCount,
                 Page = currentPage,
                 TotalPages = totalPages,
@@ -121,19 +164,35 @@ namespace LabReserve.Persistence.Repositories
             };
         }
 
-        public Task<IEnumerable<Group>> GetByList(List<long> ids)
+        public async Task<IEnumerable<Group>> GetByList(List<long> ids)
         {
-            return _session.Connection.QueryAsync<Group>(@"SELECT
-                g.id as Id,
-                g.status as Status,
-                g.name as Name,
-                g.idCourse as IdCourse,
-                g.updated_by as UpdatedBy,
-                g.updated_date as UpdatedDate,
-                g.created_by as CreatedBy,
-                g.created_date as CreatedDate
-            FROM groups g
-            WHERE g.id in (@Ids) AND g.status = 1", new { Ids = ids }, _session.Transaction)!;
+            var query = @"
+                SELECT
+                    g.id as Id,
+                    g.status as Status,
+                    g.name as Name,
+                    g.updated_by as UpdatedBy,
+                    g.updated_date as UpdatedDate,
+                    g.created_by as CreatedBy,
+                    g.created_date as CreatedDate,
+                    c.id as CourseId,
+                    c.name as CourseName,
+                    c.status as CourseStatus,
+                    c.updated_by as CourseUpdatedBy,
+                    c.updated_date as CourseUpdatedDate,
+                    c.created_by as CourseCreatedBy,
+                    c.created_date as CourseCreatedDate
+                FROM groups g
+                LEFT JOIN courses c ON g.id_course = c.id
+                WHERE g.id IN @Ids AND g.status = 1";
+
+            var result = await _session.Connection.QueryAsync<Group, Course, Group>(query, (group, course) =>
+            {
+                group.Course = course;
+                return group;
+            }, new { Ids = ids }, _session.Transaction, splitOn: "CourseId");
+
+            return result;
         }
     }
 }

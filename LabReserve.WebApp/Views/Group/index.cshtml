@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "Groups";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#courseId').select2({
+                theme: "bootstrap-5",
+                width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                placeholder: $(this).data('placeholder'),
+                ajax: {
+                    url: '/group/courses',
+                    dataType: 'json',
+                    data: function (params) {
+                        var query = {
+                            search: params.term,
+                            page: params.page || 1,
+                            pageSize: 10
+                        };
+                        return query;
+                    },
+                    processResults: function (result, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: result.data.map(function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.name
+                                };
+                            }),
+                            pagination: {
+                                more: (params.page * 10) < result.totalCount
+                            }
+                        };
+                    }
+                }
+            });
+
+            let tableGroups = window.tables.init('group-table', [
+                { data: 'name', title: 'Name', width: '70%' },
+            ], '/group/list');
+
+            window.forms.setupEntityTable(tableGroups, 'group');
+        });
+    </script>
+}
+
+<div class="container-fluid">
+    <h1>Groups</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table id="group-table">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="group-form-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="group-form-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="group-form-modal-label">Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="group-form">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Name"
+                                    required>
+                                <label for="name">Name</label>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <select id="courseId" name="courseId" class="form-select"
+                                data-placeholder="Course"></select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="id" id="id" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitForm">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

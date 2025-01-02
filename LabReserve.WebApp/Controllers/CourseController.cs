@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using LabReserve.Application.Extensions;
 using LabReserve.Application.UseCases.Courses.CreateCourse;
 using LabReserve.Application.UseCases.Courses.DeleteCourse;
 using LabReserve.Application.UseCases.Courses.GetCourse;
@@ -64,7 +65,7 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {
@@ -86,7 +87,7 @@ namespace LabReserve.WebApp.Controllers
             }
             catch (ValidationException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.GetValidationErrors());
             }
             catch (Exception)
             {

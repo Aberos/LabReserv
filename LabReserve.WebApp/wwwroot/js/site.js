@@ -10,29 +10,41 @@ $(function () {
 
 window.toastMessage = {
     error: (value) => {
-        if (value.responseText) {
-            if (window.utils.isJsonString(value.responseText)) {
-                let errorObject = JSON.parse(value.responseText);
-                if (errorObject.errors) {
-                    let errors = Object.values(errorObject.errors).flat();
-                    for (let error of errors) {
-                        $.toast({
-                            heading: 'Error',
-                            text: error,
-                            icon: 'error',
-                            showHideTransition: 'fade',
-                            position: 'bottom-right',
-                        })
+        if (value) {
+            if (value.responseText) {
+                if (window.utils.isJsonString(value.responseText)) {
+                    let errorObject = JSON.parse(value.responseText);
+                    if (errorObject.errors) {
+                        let errors = Object.values(errorObject.errors).flat();
+                        for (let error of errors) {
+                            $.toast({
+                                heading: 'Error',
+                                text: error,
+                                icon: 'error',
+                                showHideTransition: 'fade',
+                                position: 'bottom-right',
+                            })
+                        }
                     }
+                } else {
+                    $.toast({
+                        heading: 'Error',
+                        text: value.responseText,
+                        icon: 'error',
+                        showHideTransition: 'fade',
+                        position: 'bottom-right',
+                    })
                 }
-            } else {
-                $.toast({
-                    heading: 'Error',
-                    text: value.responseText,
-                    icon: 'error',
-                    showHideTransition: 'fade',
-                    position: 'bottom-right',
-                })
+            } else if (Array.isArray(value)) {
+                for (let error of value) {
+                    $.toast({
+                        heading: 'Error',
+                        text: error,
+                        icon: 'error',
+                        showHideTransition: 'fade',
+                        position: 'bottom-right',
+                    })
+                }
             }
         }
     }
@@ -175,6 +187,14 @@ window.forms = {
         });
     },
 
+    parseErrors: (result) => {
+        if (result.responseJSON && Array.isArray(result.responseJSON)) {
+            return result.responseJSON.map(x => `${x.propertyName}: ${x.errorMessage}`);
+        }
+
+        return result;
+    },
+
     setupEntityTable: (table, entityName) => {
         const tableId = table.settings()[0].sTableId;
         const entityFormModal = $(`#${entityName}-form-modal`);
@@ -201,7 +221,7 @@ window.forms = {
                     entityFormModal.modal('show');
                 },
                 error: (res) => {
-                    window.toastMessage.error(res);
+                    window.toastMessage.error(window.forms.parseErrors(res));
                 },
                 complete: (data) => {
                     window.loading.hide();
@@ -220,7 +240,7 @@ window.forms = {
                     table.ajax.reload();
                 },
                 error: (res) => {
-                    window.toastMessage.error(res);
+                    window.toastMessage.error(window.forms.parseErrors(res));
                 },
                 complete: (data) => {
                     window.loading.hide();
@@ -253,7 +273,7 @@ window.forms = {
                     entityFormModal.modal('hide');
                 },
                 error: (res) => {
-                    window.toastMessage.error(res);
+                    window.toastMessage.error(window.forms.parseErrors(res));
                 },
                 complete: (data) => {
                     submitButton.prop("disabled", false);
