@@ -24,7 +24,7 @@ namespace LabReserve.Persistence.Repositories
         public Task Update(Group entity)
         {
             return _session.Connection.ExecuteAsync(@"UPDATE groups SET
-                 email = @Name,
+                 name = @Name,
                  idCourse = @IdCourse,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()

@@ -25,7 +25,7 @@ public class RoomRepository : IRoomRepository
     public Task Update(Room entity)
     {
         return _session.Connection.ExecuteAsync(@"UPDATE rooms SET
-                 email = @Name,
+                 name = @Name,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
                 WHERE

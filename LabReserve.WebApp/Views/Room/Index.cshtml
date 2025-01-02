@@ -6,66 +6,11 @@
 @section Scripts {
     <script type="text/javascript">
         $(function () {
-            let addRoomModal = $('#addRoomModal')
-            let addRoomForm = $('#add-room');
-            let submitButton = $('#btnSubmitForm');
-
-            let tableRooms = window.tables.init('table-room', [
+            let tableRooms = window.tables.init('room-table', [
                 { data: 'name', title: 'Name', width: '70%' },
             ], '/room/list');
 
-            $(document).on('table-room-add', function () {
-                addRoomModal.modal('show');
-            });
-
-            $(document).on('table-room-edit', function (e, roomId) {
-                console.log(roomId);
-            });
-
-            $(document).on('table-room-delete', function (e, roomId) {
-                $.ajax({
-                    url: '/room/' + roomId,
-                    type: 'DELETE',
-                    beforeSend: () => {
-                        window.loading.show();
-                    },
-                    success: (res) => {
-                        tableRooms.ajax.reload();
-                    },
-                    error: (res) => {
-                        window.toastMessage.error(res);
-                    },
-                    complete: (data) => {
-                        window.loading.hide();
-                    }
-                })
-            });
-
-            submitButton.click(function () {
-                addRoomForm.submit();
-            });
-
-            addRoomForm.submit(function (e) {
-                e.preventDefault();
-                let data = Object.fromEntries([...new FormData(this)]);
-                submitButton.prop("disabled", true);
-                $.ajax({
-                    url: '/room',
-                    type: 'POST',
-                    contentType: "application/json",
-                    data: JSON.stringify(data),
-                    success: (res) => {
-                        tableRooms.ajax.reload();
-                        addRoomModal.modal('hide');
-                    },
-                    error: (res) => {
-                        window.toastMessage.error(res);
-                    },
-                    complete: (data) => {
-                        submitButton.prop("disabled", false);
-                    }
-                })
-            });
+            window.forms.setupEntityTable(tableRooms, 'room');
         });
     </script>
 }
@@ -75,23 +20,23 @@
     <div class="row">
         <div class="col-12">
             <div class="table-responsive">
-                <table id="table-room">
+                <table id="room-table">
                 </table>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="addRoomModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="aaddRoomModalLabel" aria-hidden="true">
+<div class="modal fade" id="room-form-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="room-form-modal-label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addRoomModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="room-form-modal-label">Room</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="add-room">
+                <form id="room-form">
                     <div class="row">
                         <div class="col-12">
                             <div class="form-floating">
@@ -101,6 +46,7 @@
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="id" id="id" />
                 </form>
             </div>
             <div class="modal-footer">

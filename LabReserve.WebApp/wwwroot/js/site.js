@@ -147,3 +147,118 @@ window.loading = {
         $('#loadingOverlay').css('display', 'none');
     }
 }
+
+window.forms = {
+    setFormFields: (form, obj) => {
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const element = form.find(`[name="${key}"]`);
+                if (element.length > 0) {
+                    element.val(obj[key]);
+                }
+            }
+        }
+    },
+
+
+    clearFormFields: (form) => {
+        form.find('input, textarea, select').each(function () {
+            switch (this.type) {
+                case 'checkbox':
+                case 'radio':
+                    this.checked = false;
+                    break;
+                default:
+                    $(this).val('');
+                    break;
+            }
+        });
+    },
+
+    setupEntityTable: (table, entityName) => {
+        const tableId = table.settings()[0].sTableId;
+        const entityFormModal = $(`#${entityName}-form-modal`);
+        const entityForm = $(`#${entityName}-form`);
+        const submitButton = entityFormModal.find(`#btnSubmitForm`);
+
+        $(document).on(`${tableId}-add`, function () {
+            entityFormModal.modal('show');
+        });
+
+        entityFormModal.on('hidden.bs.modal', function () {
+            window.forms.clearFormFields(entityForm);
+        });
+
+        $(document).on(`${tableId}-edit`, function (e, entityId) {
+            $.ajax({
+                url: `/${entityName}/` + entityId,
+                type: 'GET',
+                beforeSend: () => {
+                    window.loading.show();
+                },
+                success: (res) => {
+                    window.forms.setFormFields(entityForm, res);
+                    entityFormModal.modal('show');
+                },
+                error: (res) => {
+                    window.toastMessage.error(res);
+                },
+                complete: (data) => {
+                    window.loading.hide();
+                }
+            });
+        });
+
+        $(document).on(`${tableId}-delete`, function (e, entityId) {
+            $.ajax({
+                url: `/${entityName}/` + entityId,
+                type: 'DELETE',
+                beforeSend: () => {
+                    window.loading.show();
+                },
+                success: (res) => {
+                    table.ajax.reload();
+                },
+                error: (res) => {
+                    window.toastMessage.error(res);
+                },
+                complete: (data) => {
+                    window.loading.hide();
+                }
+            });
+        });
+
+        submitButton.click(function () {
+            entityForm.submit();
+        });
+
+        entityForm.submit(function (e) {
+            e.preventDefault();
+            let data = Object.fromEntries([...new FormData(this)]);
+            let url = `/${entityName}`;
+            let typeRequest = 'POST';
+            if (data.id) {
+                url += '/' + data.id;
+                typeRequest = 'PUT';
+            }
+
+            submitButton.prop("disabled", true);
+            $.ajax({
+                url: url,
+                type: typeRequest,
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: (res) => {
+                    table.ajax.reload();
+                    entityFormModal.modal('hide');
+                },
+                error: (res) => {
+                    window.toastMessage.error(res);
+                },
+                complete: (data) => {
+                    submitButton.prop("disabled", false);
+                }
+            });
+        });
+    }
+}
