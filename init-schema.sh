@@ -1,1 +1,0 @@
-/opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P lab102030! -d master -i /tmp/schema.sql
