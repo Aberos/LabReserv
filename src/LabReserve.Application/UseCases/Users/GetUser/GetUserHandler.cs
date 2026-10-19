@@ -1,20 +1,13 @@
 using LabReserve.Domain.Abstractions;
-using LabReserve.Domain.Entities;
 using Mediator;
 
-namespace LabReserve.Application.UseCases.Users.GetUser
-{
-    public class GetUserHandler : IQueryHandler<GetUserQuery, User?>
-    {
-        private readonly IUserRepository _userRepository;
-        public GetUserHandler(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
+namespace LabReserve.Application.UseCases.Users.GetUser;
 
-        public async ValueTask<User?> Handle(GetUserQuery request, CancellationToken cancellationToken)
-        {
-            return await _userRepository.Get(request.Id);
-        }
+public class GetUserHandler(IUserRepository userRepository) : IQueryHandler<GetUserQuery, UserResponse?>
+{
+    public async ValueTask<UserResponse?> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.Get(request.Id);
+        return user is null ? null : UserResponse.From(user);
     }
 }

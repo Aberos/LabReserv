@@ -1,20 +1,14 @@
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Dto;
-using LabReserve.Domain.Entities;
 using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.GetRooms;
 
-public class GetRoomsHandler : IQueryHandler<GetRoomsQuery, FilterResponseDto<Room>>
+public class GetRoomsHandler(IRoomRepository roomRepository) : IQueryHandler<GetRoomsQuery, FilterResponseDto<RoomResponse>>
 {
-    private readonly IRoomRepository _roomRepository;
-    public GetRoomsHandler(IRoomRepository roomRepository)
+    public async ValueTask<FilterResponseDto<RoomResponse>> Handle(GetRoomsQuery request, CancellationToken cancellationToken)
     {
-        _roomRepository = roomRepository;
-    }
-
-    public async ValueTask<FilterResponseDto<Room>> Handle(GetRoomsQuery request, CancellationToken cancellationToken)
-    {
-        return await _roomRepository.GetFilteredList(request);
+        var page = await roomRepository.GetFilteredList(request);
+        return page.Map(RoomResponse.From);
     }
 }

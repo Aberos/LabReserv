@@ -1,20 +1,14 @@
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Dto;
-using LabReserve.Domain.Entities;
 using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.GetCourses;
 
-public class GetCoursesHandler : IQueryHandler<GetCoursesQuery, FilterResponseDto<Course>>
+public class GetCoursesHandler(ICourseRepository courseRepository) : IQueryHandler<GetCoursesQuery, FilterResponseDto<CourseResponse>>
 {
-    private readonly ICourseRepository _courseRepository;
-    public GetCoursesHandler(ICourseRepository courseRepository)
+    public async ValueTask<FilterResponseDto<CourseResponse>> Handle(GetCoursesQuery request, CancellationToken cancellationToken)
     {
-        _courseRepository = courseRepository;
-    }
-
-    public async ValueTask<FilterResponseDto<Course>> Handle(GetCoursesQuery request, CancellationToken cancellationToken)
-    {
-        return await _courseRepository.GetFilteredList(request);
+        var page = await courseRepository.GetFilteredList(request);
+        return page.Map(CourseResponse.From);
     }
 }

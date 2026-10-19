@@ -1,8 +1,6 @@
-using LabReserve.Domain.Entities;
-
 namespace LabReserve.Domain.Dto;
 
-public class FilterResponseDto<T> where T : BaseEntity
+public class FilterResponseDto<T> where T : class
 {
     public int TotalCount { get; set; }
     public int Page { get; set; }
@@ -19,5 +17,15 @@ public class FilterResponseDto<T> where T : BaseEntity
         PageSize = filter.CurrentPageSize,
         TotalPages = (int)Math.Ceiling(totalCount / (double)filter.CurrentPageSize),
         RequestId = filter.RequestId
+    };
+
+    public FilterResponseDto<TResult> Map<TResult>(Func<T, TResult> map) where TResult : class => new()
+    {
+        Data = Data.Select(map).ToList(),
+        TotalCount = TotalCount,
+        Page = Page,
+        PageSize = PageSize,
+        TotalPages = TotalPages,
+        RequestId = RequestId
     };
 }
