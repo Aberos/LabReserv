@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path=".env.example" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/LabReserve.Domain/LabReserve.Domain.csproj" />
+    <Project Path="src/LabReserve.Application/LabReserve.Application.csproj" />
+    <Project Path="src/LabReserve.Persistence/LabReserve.Persistence.csproj" />
+    <Project Path="src/LabReserve.Migrations/LabReserve.Migrations.csproj" />
+    <Project Path="src/LabReserve.WebApp/LabReserve.WebApp.csproj" />
+  </Folder>
+</Solution>

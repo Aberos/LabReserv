@@ -39,10 +39,19 @@
             });
 
             let tableGroups = window.tables.init('group-table', [
-                { data: 'name', title: 'Name', width: '70%' },
+                { data: 'name', title: 'Name', width: '35%' },
+                { data: 'course.name', title: 'Course', width: '35%', defaultContent: '' },
             ], '/group/list');
 
             window.forms.setupEntityTable(tableGroups, 'group');
+
+            $('#group-form').on('form:loaded', function (e, group) {
+                if (!group.course)
+                    return;
+
+                let selectedCourse = new Option(group.course.name, group.course.id, true, true);
+                $('#courseId').empty().append(selectedCourse).trigger('change');
+            });
         });
     </script>
 }

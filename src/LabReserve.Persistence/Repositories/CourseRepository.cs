@@ -72,12 +72,6 @@ namespace LabReserve.Persistence.Repositories
 
         public async Task<FilterResponseDto<Course>> GetFilteredList(FilterRequestDto filter)
         {
-            var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
-            var requestPage = filter?.Page ?? 1;
-            var size = filter?.PageSize ?? 10;
-            var skip = (requestPage - 1) * size;
-            var requestId = filter?.RequestId ?? 1;
-
             var query = @"
                 SELECT
                     c.id as Id,
@@ -101,21 +95,11 @@ namespace LabReserve.Persistence.Repositories
                     (@Search IS NULL OR c.name LIKE @Search);";
 
             using var multi = await _session.Connection
-                .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+                .QueryMultipleAsync(query, new { Search = filter.SearchPattern, filter.Skip, Size = filter.CurrentPageSize }, _session.Transaction);
             var data = multi.Read<Course>().ToList();
             var totalCount = multi.ReadFirst<int>();
 
-            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
-            var currentPage = (skip / size) + 1;
-
-            return new FilterResponseDto<Course>
-            {
-                Data = data,
-                TotalCount = totalCount,
-                Page = currentPage,
-                TotalPages = totalPages,
-                RequestId = requestId,
-            };
+            return FilterResponseDto<Course>.Create(data, totalCount, filter);
         }
     }
 }

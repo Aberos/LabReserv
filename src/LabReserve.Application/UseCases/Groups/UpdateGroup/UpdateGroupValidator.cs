@@ -4,9 +4,9 @@ using LabReserve.Domain.Abstractions;
 
 namespace LabReserve.Application.UseCases.Groups.UpdateGroup;
 
-public class UpdateCourseValidator : AbstractValidator<UpdateGroupCommand>
+public class UpdateGroupValidator : AbstractValidator<UpdateGroupCommand>
 {
-    public UpdateCourseValidator(IGroupRepository groupRepository, ICourseRepository courseRepository)
+    public UpdateGroupValidator(IGroupRepository groupRepository, ICourseRepository courseRepository)
     {
         RuleFor(request => request.Name).NotNull()
             .CustomAsync(async (name, context, cancellationToken) =>
@@ -19,7 +19,7 @@ public class UpdateCourseValidator : AbstractValidator<UpdateGroupCommand>
                 }
             });
 
-        RuleFor(Request => Request.CourseId)
+        RuleFor(request => request.CourseId)
             .CustomAsync(async (courseId, context, cancellationToken) =>
             {
                 var course = await courseRepository.Get(courseId);

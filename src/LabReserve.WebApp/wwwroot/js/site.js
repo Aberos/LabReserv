@@ -181,7 +181,7 @@ window.forms = {
                     this.checked = false;
                     break;
                 default:
-                    $(this).val('');
+                    $(this).val('').trigger('change');
                     break;
             }
         });
@@ -218,6 +218,7 @@ window.forms = {
                 },
                 success: (res) => {
                     window.forms.setFormFields(entityForm, res);
+                    entityForm.trigger('form:loaded', [res]);
                     entityFormModal.modal('show');
                 },
                 error: (res) => {

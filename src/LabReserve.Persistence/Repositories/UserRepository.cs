@@ -80,12 +80,6 @@ public class UserRepository : IUserRepository
 
     public async Task<FilterResponseDto<User>> GetFilteredList(FilterRequestDto filter)
     {
-        var search = string.IsNullOrWhiteSpace(filter?.Search) ? null : $"%{filter.Search}%";
-        var requestPage = filter?.Page ?? 1;
-        var size = filter?.PageSize ?? 10;
-        var skip = (requestPage - 1) * size;
-        var requestId = filter?.RequestId ?? 1;
-
         var query = @"
             SELECT
                 u.id as Id,
@@ -114,21 +108,11 @@ public class UserRepository : IUserRepository
                 (@Search IS NULL OR u.email LIKE @Search OR u.first_name LIKE @Search OR u.last_name LIKE @Search OR u.phone LIKE @Search);";
 
         using var multi = await _session.Connection
-            .QueryMultipleAsync(query, new { Search = search, Skip = skip, Size = size }, _session.Transaction);
+            .QueryMultipleAsync(query, new { Search = filter.SearchPattern, filter.Skip, Size = filter.CurrentPageSize }, _session.Transaction);
         var data = multi.Read<User>().ToList();
         var totalCount = multi.ReadFirst<int>();
 
-        var totalPages = (int)Math.Ceiling(totalCount / (double)size);
-        var currentPage = (skip / size) + 1;
-
-        return new FilterResponseDto<User>
-        {
-            Data = data,
-            TotalCount = totalCount,
-            Page = currentPage,
-            TotalPages = totalPages,
-            RequestId = requestId
-        };
+        return FilterResponseDto<User>.Create(data, totalCount, filter);
     }
 
     public Task<User?> GetByEmail(string email)
