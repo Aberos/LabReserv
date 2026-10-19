@@ -1,10 +1,10 @@
-﻿using LabReserve.Domain.Dto;
+using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.GetUsers
 {
-    public class GetUsersQuery : FilterRequestDto, IRequest<FilterResponseDto<User>>
+    public class GetUsersQuery : FilterRequestDto, IQuery<FilterResponseDto<User>>
     {
     }
 }

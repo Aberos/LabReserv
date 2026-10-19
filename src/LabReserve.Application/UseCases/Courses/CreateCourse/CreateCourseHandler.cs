@@ -1,47 +1,20 @@
-using FluentValidation;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.CreateCourse;
 
-public class CreateCourseHandler : IRequestHandler<CreateCourseCommand>
+public class CreateCourseHandler(ICourseRepository courseRepository, IAuthService authService)
+    : ICommandHandler<CreateCourseCommand>
 {
-    private readonly ICourseRepository _courseRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthService _authService;
-    private readonly IValidator<CreateCourseCommand> _validator;
-
-    public CreateCourseHandler(ICourseRepository courseRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<CreateCourseCommand> validator)
+    public async ValueTask<Unit> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
-        _courseRepository = courseRepository;
-        _unitOfWork = unitOfWork;
-        _authService = authService;
-        _validator = validator;
-    }
-
-    public async Task Handle(CreateCourseCommand request, CancellationToken cancellationToken)
-    {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
-
-        try
+        await courseRepository.Create(new Course
         {
-            _unitOfWork.BeginTransaction();
-            var newCourse = new Course
-            {
-                Name = request.Name,
-                CreatedBy = _authService.Id!.Value
-            };
+            Name = request.Name,
+            CreatedBy = authService.Id!.Value
+        });
 
-            await _courseRepository.Create(newCourse);
-            _unitOfWork.Commit();
-        }
-        catch (Exception)
-        {
-            _unitOfWork.Rollback();
-            throw;
-        }
+        return Unit.Value;
     }
 }

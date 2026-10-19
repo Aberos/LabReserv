@@ -1,34 +1,18 @@
 using LabReserve.Domain.Abstractions;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.DeleteCourse;
 
-public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand>
+public class DeleteCourseHandler(ICourseRepository courseRepository, IAuthService authService)
+    : ICommandHandler<DeleteCourseCommand>
 {
-    private readonly ICourseRepository _courseRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthService _authService;
-    public DeleteCourseHandler(ICourseRepository courseRepository, IUnitOfWork unitOfWork, IAuthService authService)
+    public async ValueTask<Unit> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
-        _courseRepository = courseRepository;
-        _unitOfWork = unitOfWork;
-        _authService = authService;
-    }
+        var course = await courseRepository.Get(request.CourseId) ?? throw new KeyNotFoundException("Course not found");
+        course.UpdatedBy = authService.Id!.Value;
 
-    public async Task Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            _unitOfWork.BeginTransaction();
-            var course = await _courseRepository.Get(request.CourseId) ?? throw new Exception("Course not found");
-            course.UpdatedBy = _authService.Id!.Value;
-            await _courseRepository.Delete(course);
-            _unitOfWork.Commit();
-        }
-        catch (Exception)
-        {
-            _unitOfWork.Rollback();
-            throw;
-        }
+        await courseRepository.Delete(course);
+
+        return Unit.Value;
     }
 }

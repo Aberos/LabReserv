@@ -1,10 +1,10 @@
 using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.GetRooms;
 
-public class GetRoomsQuery : FilterRequestDto, IRequest<FilterResponseDto<Room>>
+public class GetRoomsQuery : FilterRequestDto, IQuery<FilterResponseDto<Room>>
 {
 
 }

@@ -1,33 +1,34 @@
+using System.Data;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Persistence.Abstractions;
 
 namespace LabReserve.Persistence;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(IDbSession session) : IUnitOfWork
 {
-    private readonly IDbSession _session;
-
-    public UnitOfWork(IDbSession session)
-    {
-        _session = session;
-    }
-
     public void BeginTransaction()
     {
-        _session.Transaction = _session.Connection.BeginTransaction();
+        session.Transaction = session.Connection.BeginTransaction();
     }
 
     public void Commit()
     {
-        _session.Transaction.Commit();
+        ActiveTransaction.Commit();
         Dispose();
     }
 
     public void Rollback()
     {
-        _session.Transaction.Rollback();
+        ActiveTransaction.Rollback();
         Dispose();
     }
 
-    public void Dispose() => _session.Transaction?.Dispose();
+    public void Dispose()
+    {
+        session.Transaction?.Dispose();
+        session.Transaction = null;
+    }
+
+    private IDbTransaction ActiveTransaction =>
+        session.Transaction ?? throw new InvalidOperationException("No active transaction.");
 }

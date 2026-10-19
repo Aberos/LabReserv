@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="Mediator.SourceGenerator">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LabReserve.Application\LabReserve.Application.csproj" />
     <ProjectReference Include="..\LabReserve.Domain\LabReserve.Domain.csproj" />
     <ProjectReference Include="..\LabReserve.Persistence\LabReserve.Persistence.csproj" />

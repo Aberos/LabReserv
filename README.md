@@ -5,7 +5,7 @@ Sistema web para reserva de laboratórios e salas.
 ## Stack
 
 - .NET 10 (ASP.NET Core MVC + Razor)
-- MediatR + FluentValidation
+- Mediator (source generator) + FluentValidation
 - Dapper + SQL Server 2022
 - DbUp para migrations
 - Bootstrap 5, jQuery, DataTables e Select2

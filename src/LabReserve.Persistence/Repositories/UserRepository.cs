@@ -137,13 +137,21 @@ public class UserRepository : IUserRepository
 
     public Task AddGroup(GroupUser group)
     {
-        return _session.Connection.ExecuteAsync(@"INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
-                VALUES (1, @IdUser, @IdGroup, @CreatedBy, GETDATE())", group, _session.Transaction);
+        return _session.Connection.ExecuteAsync(@"
+            UPDATE group_user SET
+                status = 1,
+                updated_by = @CreatedBy,
+                updated_date = GETDATE()
+            WHERE id_user = @IdUser AND id_group = @IdGroup;
+
+            IF @@ROWCOUNT = 0
+                INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
+                VALUES (1, @IdUser, @IdGroup, @CreatedBy, GETDATE());", group, _session.Transaction);
     }
 
     public Task RemoveGroup(GroupUser group)
     {
-        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE group_user SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()
@@ -152,7 +160,7 @@ public class UserRepository : IUserRepository
 
     public Task RemoveAllGroup(long userId, long updatedBy)
     {
-        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
+        return _session.Connection.ExecuteAsync(@"UPDATE group_user SET 
                  status = 2,
                  updated_by = @UpdatedBy,
                  updated_date = GETDATE()

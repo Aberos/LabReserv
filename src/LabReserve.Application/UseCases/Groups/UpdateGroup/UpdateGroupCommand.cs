@@ -1,8 +1,8 @@
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Groups.UpdateGroup;
 
-public class UpdateGroupCommand : IRequest
+public class UpdateGroupCommand : ICommand
 {
     public string Name { get; set; }
     public long CourseId { get; set; }

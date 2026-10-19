@@ -1,10 +1,10 @@
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.GetCourse;
 
-public class GetCourseHandler : IRequestHandler<GetCourseQuery, Course>
+public class GetCourseHandler : IQueryHandler<GetCourseQuery, Course>
 {
     private readonly ICourseRepository _courseRepository;
     public GetCourseHandler(ICourseRepository courseRepository)
@@ -12,8 +12,8 @@ public class GetCourseHandler : IRequestHandler<GetCourseQuery, Course>
         _courseRepository = courseRepository;
     }
 
-    public Task<Course> Handle(GetCourseQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Course> Handle(GetCourseQuery request, CancellationToken cancellationToken)
     {
-        return _courseRepository.Get(request.CourseId);
+        return await _courseRepository.Get(request.CourseId);
     }
 }

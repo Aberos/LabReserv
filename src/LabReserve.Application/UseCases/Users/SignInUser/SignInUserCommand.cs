@@ -1,8 +1,8 @@
-﻿using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.UserSignIn
 {
-    public record SignInUserCommand(string Email, string Password) : IRequest
+    public record SignInUserCommand(string Email, string Password) : ICommand
     {
     }
 }

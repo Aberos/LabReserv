@@ -5,7 +5,7 @@ using LabReserve.Application.UseCases.Courses.DeleteCourse;
 using LabReserve.Application.UseCases.Courses.GetCourse;
 using LabReserve.Application.UseCases.Courses.GetCourses;
 using LabReserve.Application.UseCases.Courses.UpdateCourse;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

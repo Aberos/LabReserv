@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
 using LabReserve.Application.Extensions;
 using LabReserve.Application.UseCases.Users.UserSignIn;
 using LabReserve.Application.UseCases.Users.UserSignOut;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

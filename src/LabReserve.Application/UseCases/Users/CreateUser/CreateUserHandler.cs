@@ -1,70 +1,40 @@
-﻿using FluentValidation;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
 using LabReserve.Domain.Enums;
 using LabReserve.Domain.Helpers;
-using MediatR;
+using Mediator;
 
-namespace LabReserve.Application.UseCases.Users.CreateUser
+namespace LabReserve.Application.UseCases.Users.CreateUser;
+
+public class CreateUserHandler(IUserRepository userRepository, IAuthService authService)
+    : ICommandHandler<CreateUserCommand>
 {
-    public class CreateUserHandler : IRequestHandler<CreateUserCommand>
+    public async ValueTask<Unit> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IAuthService _authService;
-        private readonly IValidator<CreateUserCommand> _validator;
-
-        public CreateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<CreateUserCommand> validator)
+        var currentUserId = authService.Id!.Value;
+        var userId = await userRepository.Create(new User
         {
-            _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
-            _authService = authService;
-            _validator = validator;
-        }
+            Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Password = UserHelper.EncryptPassword(request.Password),
+            Status = Status.Enable,
+            UserType = request.UserType,
+            Phone = request.Phone,
+            CreatedBy = currentUserId
+        });
 
-        public async Task Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        foreach (var groupId in request.Groups ?? [])
         {
-            var validatorResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validatorResult.IsValid)
-                throw new ValidationException(validatorResult.Errors);
-
-            try
-            {             
-                _unitOfWork.BeginTransaction();
-
-                var newUser = new User
-                {
-                    Email = request.Email,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Password = UserHelper.EncryptPassword(request.Password),
-                    Status = Status.Enable,
-                    UserType = request.UserType,
-                    Phone = request.Phone,
-                    CreatedBy = _authService.Id!.Value
-                };
-
-                var newUserId = await _userRepository.Create(newUser);
-                if(request.Groups?.Any() ?? false)
-                {
-                    foreach (var group in request.Groups) 
-                    {
-                        await _userRepository.AddGroup(new GroupUser
-                        {
-                            IdGroup = group,
-                            IdUser = newUserId,
-                            Status = Status.Enable,
-                        });
-                    }
-                }
-
-                _unitOfWork.Commit();
-            }
-            catch (Exception)
+            await userRepository.AddGroup(new GroupUser
             {
-                _unitOfWork.Rollback();
-                throw;
-            }
+                IdGroup = groupId,
+                IdUser = userId,
+                Status = Status.Enable,
+                CreatedBy = currentUserId
+            });
         }
+
+        return Unit.Value;
     }
 }

@@ -1,42 +1,19 @@
-using FluentValidation;
 using LabReserve.Domain.Abstractions;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.UpdateRoom;
 
-public class UpdateRoomHandler : IRequestHandler<UpdateRoomCommand>
+public class UpdateRoomHandler(IRoomRepository roomRepository, IAuthService authService)
+    : ICommandHandler<UpdateRoomCommand>
 {
-    private readonly IRoomRepository _roomRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthService _authService;
-    private readonly IValidator<UpdateRoomCommand> _validator;
-    public UpdateRoomHandler(IRoomRepository roomRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<UpdateRoomCommand> validator)
+    public async ValueTask<Unit> Handle(UpdateRoomCommand request, CancellationToken cancellationToken)
     {
-        _roomRepository = roomRepository;
-        _unitOfWork = unitOfWork;
-        _authService = authService;
-        _validator = validator;
-    }
+        var room = await roomRepository.Get(request.RoomId) ?? throw new KeyNotFoundException("Room not found");
+        room.Name = request.Name;
+        room.UpdatedBy = authService.Id!.Value;
 
-    public async Task Handle(UpdateRoomCommand request, CancellationToken cancellationToken)
-    {
-        var validateResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validateResult.IsValid)
-            throw new ValidationException(validateResult.Errors);
+        await roomRepository.Update(room);
 
-        try
-        {
-            _unitOfWork.BeginTransaction();
-            var room = await _roomRepository.Get(request.RoomId) ?? throw new Exception("Room not found");
-            room.Name = request.Name;
-            room.UpdatedBy = _authService.Id!.Value;
-            await _roomRepository.Update(room);
-            _unitOfWork.Commit();
-        }
-        catch (Exception)
-        {
-            _unitOfWork.Rollback();
-            throw;
-        }
+        return Unit.Value;
     }
 }

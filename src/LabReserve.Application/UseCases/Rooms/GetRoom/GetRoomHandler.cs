@@ -1,10 +1,10 @@
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.GetRoom;
 
-public class GetRoomHandler : IRequestHandler<GetRoomQuery, Room>
+public class GetRoomHandler : IQueryHandler<GetRoomQuery, Room>
 {
     private readonly IRoomRepository _roomRepository;
     public GetRoomHandler(IRoomRepository roomRepository)
@@ -12,8 +12,8 @@ public class GetRoomHandler : IRequestHandler<GetRoomQuery, Room>
         _roomRepository = roomRepository;
     }
 
-    public Task<Room> Handle(GetRoomQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Room> Handle(GetRoomQuery request, CancellationToken cancellationToken)
     {
-        return _roomRepository.Get(request.RoomId);
+        return await _roomRepository.Get(request.RoomId);
     }
 }

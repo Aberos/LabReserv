@@ -4,7 +4,7 @@ using LabReserve.Application.UseCases.Users.CreateUser;
 using LabReserve.Application.UseCases.Users.GetUser;
 using LabReserve.Application.UseCases.Users.GetUsers;
 using LabReserve.Application.UseCases.Users.UpdateUser;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

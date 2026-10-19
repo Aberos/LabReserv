@@ -1,8 +1,8 @@
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.UpdateCourse;
 
-public class UpdateCourseCommand : IRequest
+public class UpdateCourseCommand : ICommand
 {
     public string Name { get; set; }
 

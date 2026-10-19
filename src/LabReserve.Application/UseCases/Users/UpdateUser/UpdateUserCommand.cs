@@ -1,9 +1,9 @@
 using LabReserve.Domain.Enums;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.UpdateUser;
 
-public class UpdateUserCommand : IRequest
+public class UpdateUserCommand : ICommand
 {
     public string Email { get; set; }
     public string FirstName { get; set; }

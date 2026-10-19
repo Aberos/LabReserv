@@ -1,9 +1,9 @@
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Groups.GetGroup;
 
-public record GetGroupQuery(long GroupId) : IRequest<Group>
+public record GetGroupQuery(long GroupId) : IQuery<Group>
 {
 
 }

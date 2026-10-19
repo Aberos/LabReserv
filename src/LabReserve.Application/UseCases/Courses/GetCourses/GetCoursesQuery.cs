@@ -1,10 +1,10 @@
 using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.GetCourses;
 
-public class GetCoursesQuery : FilterRequestDto, IRequest<FilterResponseDto<Course>>
+public class GetCoursesQuery : FilterRequestDto, IQuery<FilterResponseDto<Course>>
 {
 
 }

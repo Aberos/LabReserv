@@ -1,10 +1,10 @@
 using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Groups.GetGroups;
 
-public class GetGroupsQuery : FilterRequestDto, IRequest<FilterResponseDto<Group>>
+public class GetGroupsQuery : FilterRequestDto, IQuery<FilterResponseDto<Group>>
 {
 
 }

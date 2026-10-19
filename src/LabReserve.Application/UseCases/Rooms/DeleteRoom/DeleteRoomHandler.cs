@@ -1,35 +1,18 @@
 using LabReserve.Domain.Abstractions;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.DeleteRoom;
 
-public class DeleteRoomHandler : IRequestHandler<DeleteRoomCommand>
+public class DeleteRoomHandler(IRoomRepository roomRepository, IAuthService authService)
+    : ICommandHandler<DeleteRoomCommand>
 {
-    private readonly IRoomRepository _roomRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthService _authService;
-
-    public DeleteRoomHandler(IRoomRepository roomRepository, IUnitOfWork unitOfWork, IAuthService authService)
+    public async ValueTask<Unit> Handle(DeleteRoomCommand request, CancellationToken cancellationToken)
     {
-        _roomRepository = roomRepository;
-        _unitOfWork = unitOfWork;
-        _authService = authService;
-    }
+        var room = await roomRepository.Get(request.RoomId) ?? throw new KeyNotFoundException("Room not found");
+        room.UpdatedBy = authService.Id!.Value;
 
-    public async Task Handle(DeleteRoomCommand request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            _unitOfWork.BeginTransaction();
-            var room = await _roomRepository.Get(request.RoomId) ?? throw new Exception("Room not found");
-            room.UpdatedBy = _authService.Id!.Value;
-            await _roomRepository.Delete(room);
-            _unitOfWork.Commit();
-        }
-        catch (Exception)
-        {
-            _unitOfWork.Rollback();
-            throw;
-        }
+        await roomRepository.Delete(room);
+
+        return Unit.Value;
     }
 }

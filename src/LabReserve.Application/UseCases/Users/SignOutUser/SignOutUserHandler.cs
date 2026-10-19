@@ -1,9 +1,9 @@
-﻿using LabReserve.Domain.Abstractions;
-using MediatR;
+using LabReserve.Domain.Abstractions;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.UserSignOut
 {
-    public class SignOutUserHandler : IRequestHandler<SignOutUserCommand>
+    public class SignOutUserHandler : ICommandHandler<SignOutUserCommand>
     {
         private readonly IAuthService _authService;
         public SignOutUserHandler(IAuthService authService)
@@ -12,9 +12,11 @@ namespace LabReserve.Application.UseCases.Users.UserSignOut
         }
 
 
-        public async Task Handle(SignOutUserCommand request, CancellationToken cancellationToken)
+        public async ValueTask<Unit> Handle(SignOutUserCommand request, CancellationToken cancellationToken)
         {
             await _authService.RemoveUser();
+
+            return Unit.Value;
         }
     }
 }

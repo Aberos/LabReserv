@@ -5,7 +5,7 @@ using LabReserve.Application.UseCases.Rooms.DeleteRoom;
 using LabReserve.Application.UseCases.Rooms.GetRoom;
 using LabReserve.Application.UseCases.Rooms.GetRooms;
 using LabReserve.Application.UseCases.Rooms.UpdateRoom;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,48 +1,21 @@
-using System;
-using FluentValidation;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Groups.CreateGroup;
 
-public class CreateGroupHandler : IRequestHandler<CreateGroupCommand>
+public class CreateGroupHandler(IGroupRepository groupRepository, IAuthService authService)
+    : ICommandHandler<CreateGroupCommand>
 {
-    private readonly IGroupRepository _groupRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthService _authService;
-    private readonly IValidator<CreateGroupCommand> _validator;
-    public CreateGroupHandler(IGroupRepository groupRepository, IUnitOfWork unitOfWork, IAuthService authService, IValidator<CreateGroupCommand> validator)
+    public async ValueTask<Unit> Handle(CreateGroupCommand request, CancellationToken cancellationToken)
     {
-        _groupRepository = groupRepository;
-        _unitOfWork = unitOfWork;
-        _authService = authService;
-        _validator = validator;
-    }
-
-    public async Task Handle(CreateGroupCommand request, CancellationToken cancellationToken)
-    {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
-
-        try
+        await groupRepository.Create(new Group
         {
-            _unitOfWork.BeginTransaction();
-            var newGroup = new Group
-            {
-                Name = request.Name,
-                CourseId = request.CourseId,
-                CreatedBy = _authService.Id!.Value
-            };
+            Name = request.Name,
+            CourseId = request.CourseId,
+            CreatedBy = authService.Id!.Value
+        });
 
-            await _groupRepository.Create(newGroup);
-            _unitOfWork.Commit();
-        }
-        catch (Exception)
-        {
-            _unitOfWork.Rollback();
-            throw;
-        }
+        return Unit.Value;
     }
 }

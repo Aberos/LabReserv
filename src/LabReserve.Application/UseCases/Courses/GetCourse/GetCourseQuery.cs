@@ -1,9 +1,9 @@
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Courses.GetCourse;
 
-public record GetCourseQuery(long CourseId) : IRequest<Course>
+public record GetCourseQuery(long CourseId) : IQuery<Course>
 {
 
 }

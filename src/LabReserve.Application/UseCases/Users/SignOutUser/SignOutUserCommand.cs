@@ -1,8 +1,8 @@
-﻿using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.UserSignOut
 {
-    public record SignOutUserCommand : IRequest
+    public record SignOutUserCommand : ICommand
     {
     }
 }

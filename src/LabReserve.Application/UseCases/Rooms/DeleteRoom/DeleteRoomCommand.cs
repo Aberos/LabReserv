@@ -1,8 +1,8 @@
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.DeleteRoom;
 
-public record DeleteRoomCommand(long RoomId) : IRequest
+public record DeleteRoomCommand(long RoomId) : ICommand
 {
 
 }

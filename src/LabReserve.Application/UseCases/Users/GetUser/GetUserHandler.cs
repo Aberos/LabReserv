@@ -1,10 +1,10 @@
-﻿using LabReserve.Domain.Abstractions;
+using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
-using MediatR;
+using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.GetUser
 {
-    public class GetUserHandler : IRequestHandler<GetUserQuery, User>
+    public class GetUserHandler : IQueryHandler<GetUserQuery, User>
     {
         private readonly IUserRepository _userRepository;
         public GetUserHandler(IUserRepository userRepository)
@@ -12,9 +12,9 @@ namespace LabReserve.Application.UseCases.Users.GetUser
             _userRepository = userRepository;
         }
 
-        public Task<User> Handle(GetUserQuery request, CancellationToken cancellationToken)
+        public async ValueTask<User> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            return _userRepository.Get(request.Id);
+            return await _userRepository.Get(request.Id);
         }
     }
 }

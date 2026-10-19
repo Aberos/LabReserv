@@ -11,7 +11,7 @@ public sealed class DbSession : IDbSession
     private readonly Guid _id;
 
     public IDbConnection Connection { get; }
-    public IDbTransaction Transaction { get; set; }
+    public IDbTransaction? Transaction { get; set; }
 
     public DbSession(IConfiguration configuration)
     {

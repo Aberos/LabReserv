@@ -6,7 +6,7 @@ using LabReserve.Application.UseCases.Groups.DeleteGroup;
 using LabReserve.Application.UseCases.Groups.GetGroup;
 using LabReserve.Application.UseCases.Groups.GetGroups;
 using LabReserve.Application.UseCases.Groups.UpdateGroup;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
