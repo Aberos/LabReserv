@@ -1,3 +1,4 @@
+using Dapper;
 using LabReserve.Domain.Abstractions;
 using LabReserve.Domain.Entities;
 using LabReserve.Persistence.Abstractions;
@@ -13,6 +14,8 @@ public static class ServiceExtensions
     public static void ConfigureInfrastructureApp(this IServiceCollection services,
           IConfiguration configuration)
     {
+        DefaultTypeMap.MatchNamesWithUnderscores = true;
+
         services.AddSingleton<IConfiguration>(configuration);
         services.AddScoped<IDbSession, DbSession>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -4,7 +4,7 @@ using Mediator;
 
 namespace LabReserve.Application.UseCases.Groups.GetGroup;
 
-public class GetGroupHandler : IQueryHandler<GetGroupQuery, Group>
+public class GetGroupHandler : IQueryHandler<GetGroupQuery, Group?>
 {
     private readonly IGroupRepository _groupRepository;
     public GetGroupHandler(IGroupRepository groupRepository)
@@ -12,7 +12,7 @@ public class GetGroupHandler : IQueryHandler<GetGroupQuery, Group>
         _groupRepository = groupRepository;
     }
 
-    public async ValueTask<Group> Handle(GetGroupQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Group?> Handle(GetGroupQuery request, CancellationToken cancellationToken)
     {
         return await _groupRepository.Get(request.GroupId);
     }

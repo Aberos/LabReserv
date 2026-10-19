@@ -4,7 +4,7 @@ using Mediator;
 
 namespace LabReserve.Application.UseCases.Rooms.GetRoom;
 
-public class GetRoomHandler : IQueryHandler<GetRoomQuery, Room>
+public class GetRoomHandler : IQueryHandler<GetRoomQuery, Room?>
 {
     private readonly IRoomRepository _roomRepository;
     public GetRoomHandler(IRoomRepository roomRepository)
@@ -12,7 +12,7 @@ public class GetRoomHandler : IQueryHandler<GetRoomQuery, Room>
         _roomRepository = roomRepository;
     }
 
-    public async ValueTask<Room> Handle(GetRoomQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Room?> Handle(GetRoomQuery request, CancellationToken cancellationToken)
     {
         return await _roomRepository.Get(request.RoomId);
     }

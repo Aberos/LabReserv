@@ -1,193 +1,74 @@
 using Dapper;
 using LabReserve.Domain.Abstractions;
-using LabReserve.Domain.Dto;
 using LabReserve.Domain.Entities;
 using LabReserve.Persistence.Abstractions;
-using static Dapper.SqlMapper;
 
 namespace LabReserve.Persistence.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(IDbSession session) : BaseRepository<User>(session), IUserRepository
 {
-    private readonly IDbSession _session;
+    protected override string Table => "users";
 
-    public UserRepository(IDbSession session)
-    {
-        _session = session;
-    }
+    protected override string Columns =>
+        $"{Alias}.email, {Alias}.first_name, {Alias}.last_name, {Alias}.phone, {Alias}.user_type";
+
+    protected override string SearchCondition =>
+        $"{Alias}.email LIKE @Search OR {Alias}.first_name LIKE @Search OR {Alias}.last_name LIKE @Search OR {Alias}.phone LIKE @Search";
+
+    protected override string OrderBy => $"{Alias}.email";
 
     public Task<long> Create(User entity)
     {
-        return _session.Connection.ExecuteScalarAsync<long>(@"INSERT INTO users(status, email, first_name, last_name, phone, password, user_type, created_by, created_date)
-                OUTPUT INSERTED.id
-                VALUES (1, @Email, @FirstName, @LastName, @Phone, @Password, @UserType, @CreatedBy, GETDATE())", entity, _session.Transaction);
+        return Insert(
+            "email, first_name, last_name, phone, password, user_type",
+            "@Email, @FirstName, @LastName, @Phone, @Password, @UserType",
+            entity);
     }
 
     public Task Update(User entity)
     {
-        return _session.Connection.ExecuteAsync(@"UPDATE users SET
-                 email = @Email,
-                 first_name = @FirstName,
-                 last_name = @LastName,
-                 phone = @Phone,
-                 user_type = @UserType,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-                WHERE
-                    id = @Id AND status = 1
-                 ", entity, _session.Transaction);
-    }
-
-    public Task UpdatePassword(User entity)
-    {
-        return _session.Connection.ExecuteAsync(@"UPDATE users SET
-                 password = @Password,
-                 user_type = @UserType,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-                WHERE
-                    id = @Id AND status = 1
-                 ", entity, _session.Transaction);
-    }
-
-    public Task Delete(User entity)
-    {
-        return _session.Connection.ExecuteAsync(@"UPDATE users SET 
-                 status = 2,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-            WHERE id = @Id AND status = 1", entity, _session.Transaction);
-    }
-
-    public Task<User> Get(long id)
-    {
-        return _session.Connection.QueryFirstOrDefaultAsync<User>(@"SELECT
-                u.id as Id,
-                u.status as Status,
-                u.email as Email,
-                u.first_name as FirstName,
-                u.last_name as LastName,
-                u.phone as Phone,
-                u.password as Password,
-                u.user_type as UserType,
-                u.updated_by as UpdatedBy,
-                u.updated_date as UpdatedDate,
-                u.created_by as CreatedBy,
-                u.created_date as CreatedDate
-            FROM users u
-            WHERE u.id = @Id AND u.status = 1", new { Id = id }, _session.Transaction)!;
-    }
-
-    public async Task<FilterResponseDto<User>> GetFilteredList(FilterRequestDto filter)
-    {
-        var query = @"
-            SELECT
-                u.id as Id,
-                u.status as Status,
-                u.email as Email,
-                u.first_name as FirstName,
-                u.last_name as LastName,
-                u.phone as Phone,
-                u.password as Password,
-                u.user_type as UserType,
-                u.updated_by as UpdatedBy,
-                u.updated_date as UpdatedDate,
-                u.created_by as CreatedBy,
-                u.created_date as CreatedDate
-            FROM users u
-            WHERE 
-                u.status = 1 AND
-                (@Search IS NULL OR u.email LIKE @Search OR u.first_name LIKE @Search OR u.last_name LIKE @Search OR u.phone LIKE @Search)
-            ORDER BY u.email
-            OFFSET @Skip ROWS FETCH NEXT @Size ROWS ONLY;
-
-            SELECT COUNT(*) 
-            FROM users u
-            WHERE 
-                u.status = 1 AND
-                (@Search IS NULL OR u.email LIKE @Search OR u.first_name LIKE @Search OR u.last_name LIKE @Search OR u.phone LIKE @Search);";
-
-        using var multi = await _session.Connection
-            .QueryMultipleAsync(query, new { Search = filter.SearchPattern, filter.Skip, Size = filter.CurrentPageSize }, _session.Transaction);
-        var data = multi.Read<User>().ToList();
-        var totalCount = multi.ReadFirst<int>();
-
-        return FilterResponseDto<User>.Create(data, totalCount, filter);
+        return UpdateColumns(
+            "email = @Email, first_name = @FirstName, last_name = @LastName, phone = @Phone, user_type = @UserType",
+            entity);
     }
 
     public Task<User?> GetByEmail(string email)
     {
-        return _session.Connection.QueryFirstOrDefaultAsync<User>(@"SELECT
-                u.id as Id,
-                u.status as Status,
-                u.email as Email,
-                u.first_name as FirstName,
-                u.last_name as LastName,
-                u.phone as Phone,
-                u.password as Password,
-                u.user_type as UserType,
-                u.updated_by as UpdatedBy,
-                u.updated_date as UpdatedDate,
-                u.created_by as CreatedBy,
-                u.created_date as CreatedDate
-            FROM users u
-            WHERE 
-                u.status = 1 AND u.email = @Email", new { Email = email }, _session.Transaction)!;
+        return QuerySingle($"{SelectColumns}, {Alias}.password", $"{Alias}.email = @Email", new { Email = email });
     }
 
     public Task AddGroup(GroupUser group)
     {
-        return _session.Connection.ExecuteAsync(@"
+        return Session.Connection.ExecuteAsync("""
             UPDATE group_user SET
-                status = 1,
+                status = @Active,
                 updated_by = @CreatedBy,
                 updated_date = GETDATE()
             WHERE id_user = @IdUser AND id_group = @IdGroup;
 
             IF @@ROWCOUNT = 0
                 INSERT INTO group_user (status, id_user, id_group, created_by, created_date)
-                VALUES (1, @IdUser, @IdGroup, @CreatedBy, GETDATE());", group, _session.Transaction);
-    }
-
-    public Task RemoveGroup(GroupUser group)
-    {
-        return _session.Connection.ExecuteAsync(@"UPDATE group_user SET 
-                 status = 2,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-            WHERE id_user = @IdUser AND id_group = @IdGroup AND status = 1", group, _session.Transaction);
+                VALUES (@Active, @IdUser, @IdGroup, @CreatedBy, GETDATE());
+            """, WithStatusParameters(group), Session.Transaction);
     }
 
     public Task RemoveAllGroup(long userId, long updatedBy)
     {
-        return _session.Connection.ExecuteAsync(@"UPDATE group_user SET 
-                 status = 2,
-                 updated_by = @UpdatedBy,
-                 updated_date = GETDATE()
-            WHERE id_user = @IdUser AND status = 1", new { IdUser = userId, UpdatedBy = updatedBy }, _session.Transaction);
+        return Session.Connection.ExecuteAsync("""
+            UPDATE group_user SET
+                status = @Disabled,
+                updated_by = @UpdatedBy,
+                updated_date = GETDATE()
+            WHERE id_user = @IdUser AND status = @Active
+            """, WithStatusParameters(new { IdUser = userId, UpdatedBy = updatedBy }), Session.Transaction);
     }
 
     public Task<IEnumerable<GroupUser>> GetGroups(long userId)
     {
-        return _session.Connection.QueryAsync<GroupUser>(@"SELECT
-                g.id_user as IdUser,
-                g.id_group as IdGroup,
-                g.status as Status,
-                g.updated_by as UpdatedBy,
-                g.updated_date as UpdatedDate,
-                g.created_by as CreatedBy,
-                g.created_date as CreatedDate
-            FROM group_user g
-            WHERE g.id_user = @UserId AND g.status = 1", new { UserId = userId }, _session.Transaction)!;
-    }
-
-    public async Task<bool> AnyGroup(long userId, long groupId)
-    {
-        var groups = await _session.Connection.QueryAsync<GroupUser>(@"SELECT
-                g.id_user as IdUser,
-            FROM group_user g
-            WHERE g.id_user = @UserId AND g.id_group = @GroupId AND g.status = 1", new { UserId = userId, GroupId = groupId }, _session.Transaction);
-
-        return groups?.Any() ?? false;
+        return Session.Connection.QueryAsync<GroupUser>("""
+            SELECT id_user, id_group, status, created_by, created_date, updated_by, updated_date
+            FROM group_user
+            WHERE id_user = @IdUser AND status = @Active
+            """, WithStatusParameters(new { IdUser = userId }), Session.Transaction);
     }
 }
