@@ -16,7 +16,7 @@ namespace LabReserve.WebApp.Controllers
             return View();
         }
 
-        [Route("access-denied")]
+        [Route("{controller}/access-denied")]
         public IActionResult AccessDenied()
         {
             return View();

@@ -34,7 +34,7 @@ public class UpdateUserValidator: AbstractValidator<UpdateUserCommand>
         RuleFor(request => request.FirstName).NotNull();
         RuleFor(request => request.LastName).NotNull();
         RuleFor(request => request.Phone).NotNull().MinimumLength(10).MaximumLength(11);
-        RuleFor(request => request.Password).NotNull().MinimumLength(6);
+        RuleFor(request => request.Password).MinimumLength(6).When(request => !string.IsNullOrEmpty(request.Password));
         RuleFor(request => request.UserType).NotNull().IsInEnum();
     }
 }

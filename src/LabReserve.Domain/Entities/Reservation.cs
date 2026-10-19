@@ -1,6 +1,6 @@
 namespace LabReserve.Domain.Entities;
 
-public class Reserve : BaseEntity
+public class Reservation : BaseEntity
 {
     public DateTime PeriodStart { get; set; }
 

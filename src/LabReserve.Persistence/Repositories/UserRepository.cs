@@ -32,6 +32,11 @@ public class UserRepository(IDbSession session) : BaseRepository<User>(session),
             entity);
     }
 
+    public Task UpdatePassword(User entity)
+    {
+        return UpdateColumns("password = @Password", entity);
+    }
+
     public Task<User?> GetByEmail(string email)
     {
         return QuerySingle($"{SelectColumns}, {Alias}.password", $"{Alias}.email = @Email", new { Email = email });

@@ -3,11 +3,18 @@ using Mediator;
 
 namespace LabReserve.Application.UseCases.Users.GetUser;
 
-public class GetUserHandler(IUserRepository userRepository) : IQueryHandler<GetUserQuery, UserResponse?>
+public class GetUserHandler(IUserRepository userRepository, IGroupRepository groupRepository)
+    : IQueryHandler<GetUserQuery, UserDetailsResponse?>
 {
-    public async ValueTask<UserResponse?> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async ValueTask<UserDetailsResponse?> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
         var user = await userRepository.Get(request.Id);
-        return user is null ? null : UserResponse.From(user);
+        if (user is null)
+            return null;
+
+        var groupIds = (await userRepository.GetGroups(user.Id)).Select(link => link.IdGroup).ToList();
+        var groups = groupIds.Count == 0 ? [] : await groupRepository.GetByList(groupIds);
+
+        return UserDetailsResponse.From(user, groups);
     }
 }

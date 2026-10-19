@@ -1,0 +1,345 @@
+@using LabReserve.Domain.Abstractions
+@using LabReserve.Domain.Enums
+@inject IAuthService AuthService
+
+@{
+    ViewBag.Title = "Reservations";
+    Layout = "_Layout";
+    var canManage = AuthService.UserType is UserType.Admin or UserType.Manager;
+}
+
+@section Scripts {
+    <script src="~/lib/fullcalendar/index.global.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            const canManage = @(canManage ? "true" : "false");
+            const mobileQuery = window.matchMedia('(max-width: 767.98px)');
+            const palette = ['#2563eb', '#16a34a', '#d97706', '#9333ea', '#dc2626', '#0891b2', '#db2777', '#4f46e5'];
+            const modal = $('#reservation-modal');
+            const form = $('#reservation-form');
+
+            const roomColor = (roomId) => palette[roomId % palette.length];
+            const pad = (value) => String(value).padStart(2, '0');
+            const toDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+            const toTime = (date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+            const toLocalIso = (date) => `${toDate(date)}T${toTime(date)}:00`;
+            const toolbars = {
+                desktop: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                mobile: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'today'
+                }
+            };
+
+            const lookup = (selector, url, placeholder, text) => window.select2.remote(selector, url, {
+                dropdownParent: modal,
+                placeholder: placeholder,
+                text: text
+            });
+
+            lookup('#roomId', '/reservation/rooms', 'Select a room');
+            lookup('#groupId', '/reservation/groups', 'Select a group',
+                group => group.course ? `${group.name} · ${group.course.name}` : group.name);
+            lookup('#userId', '/reservation/users', 'Select a professor',
+                user => `${user.firstName} ${user.lastName}`);
+
+            window.select2.remote('#roomFilter', '/reservation/rooms', {
+                placeholder: 'All rooms',
+                allowClear: true
+            }).on('change', () => calendar.refetchEvents());
+
+            const toEvent = (reservation) => ({
+                id: reservation.id,
+                start: reservation.start,
+                end: reservation.end,
+                title: reservation.roomName,
+                backgroundColor: roomColor(reservation.roomId),
+                extendedProps: reservation
+            });
+
+            const renderEvent = (info) => {
+                const reservation = info.event.extendedProps;
+                const escape = window.utils.escapeHtml;
+                if (info.view.type === 'dayGridMonth') {
+                    return {
+                        html: `<span class="fc-event-time">${info.timeText}</span> <span class="fc-event-room">${escape(reservation.roomName)}</span>`
+                    };
+                }
+
+                return {
+                    html: `
+                        <div class="fc-event-time">${info.timeText}</div>
+                        <div class="fc-event-room">${escape(reservation.roomName)}</div>
+                        <div class="fc-event-detail">${escape(reservation.groupName)} · ${escape(reservation.userName)}</div>`
+                };
+            };
+
+            const fetchEvents = (info, success, failure) => {
+                $.ajax({
+                    url: '/reservation/events',
+                    data: {
+                        start: toLocalIso(info.start),
+                        end: toLocalIso(info.end),
+                        roomId: $('#roomFilter').val() || null
+                    },
+                    success: (reservations) => success(reservations.map(toEvent)),
+                    error: (response) => {
+                        window.toastMessage.error(response);
+                        failure(response);
+                    }
+                });
+            };
+
+            const fillForm = (values) => {
+                $('#reservationId').val(values.id ?? '');
+                $('#date').val(toDate(values.start));
+                $('#startTime').val(toTime(values.start));
+                $('#endTime').val(toTime(values.end));
+                window.select2.setSelected('#roomId', values.room ? [values.room] : []);
+                window.select2.setSelected('#groupId', values.group ? [values.group] : []);
+                window.select2.setSelected('#userId', values.user ? [values.user] : []);
+            };
+
+            const openModal = (title, values, isExisting) => {
+                modal.find('.modal-title').text(title);
+                fillForm(values);
+                form.find('input, select').prop('disabled', !canManage);
+                $('#btnDeleteReservation').toggleClass('d-none', !(canManage && isExisting));
+                $('#btnSaveReservation').toggleClass('d-none', !canManage);
+                modal.modal('show');
+            };
+
+            const openNew = (start, end) => openModal('New reservation', { start: start, end: end }, false);
+
+            const openExisting = (reservation) => openModal(
+                canManage ? 'Edit reservation' : 'Reservation details',
+                {
+                    id: reservation.id,
+                    start: new Date(reservation.start),
+                    end: new Date(reservation.end),
+                    room: { id: reservation.roomId, text: reservation.roomName },
+                    group: { id: reservation.groupId, text: `${reservation.groupName} · ${reservation.courseName}` },
+                    user: { id: reservation.userId, text: reservation.userName }
+                },
+                true);
+
+            const save = (id, payload, onError) => {
+                $.ajax({
+                    url: id ? `/reservation/${id}` : '/reservation',
+                    type: id ? 'PUT' : 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    beforeSend: window.loading.show,
+                    success: (message) => {
+                        modal.modal('hide');
+                        calendar.refetchEvents();
+                        window.toastMessage.success(message);
+                    },
+                    error: (response) => {
+                        window.toastMessage.error(response);
+                        onError?.();
+                    },
+                    complete: window.loading.hide
+                });
+            };
+
+            const moveEvent = (info) => {
+                const reservation = info.event.extendedProps;
+                save(reservation.id, {
+                    roomId: reservation.roomId,
+                    groupId: reservation.groupId,
+                    userId: reservation.userId,
+                    start: toLocalIso(info.event.start),
+                    end: toLocalIso(info.event.end)
+                }, info.revert);
+            };
+
+            const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: mobileQuery.matches ? 'listWeek' : 'timeGridWeek',
+                headerToolbar: mobileQuery.matches ? toolbars.mobile : toolbars.desktop,
+                footerToolbar: mobileQuery.matches ? { center: 'dayGridMonth,timeGridDay,listWeek' } : false,
+                height: 'auto',
+                firstDay: 1,
+                nowIndicator: true,
+                allDaySlot: false,
+                slotMinTime: '07:00:00',
+                slotMaxTime: '23:00:00',
+                slotDuration: '00:30:00',
+                expandRows: true,
+                dayMaxEvents: 3,
+                eventDisplay: 'block',
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                businessHours: { daysOfWeek: [1, 2, 3, 4, 5, 6], startTime: '07:00', endTime: '23:00' },
+                buttonText: { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
+                noEventsContent: 'No reservations in this period',
+                selectable: canManage,
+                selectMirror: true,
+                editable: canManage,
+                eventOverlap: (stillEvent, movingEvent) => stillEvent.extendedProps.roomId !== movingEvent.extendedProps.roomId,
+                events: fetchEvents,
+                eventContent: renderEvent,
+                eventDidMount: (info) => {
+                    const reservation = info.event.extendedProps;
+                    info.el.title = `${reservation.roomName}\n${reservation.groupName} · ${reservation.courseName}\n${reservation.userName}`;
+                },
+                select: (info) => {
+                    calendar.unselect();
+                    if (info.allDay) {
+                        const start = new Date(info.start);
+                        start.setHours(8, 0, 0, 0);
+                        const end = new Date(start);
+                        end.setHours(10, 0, 0, 0);
+                        openNew(start, end);
+                        return;
+                    }
+
+                    openNew(info.start, info.end);
+                },
+                eventClick: (info) => openExisting(info.event.extendedProps),
+                eventDrop: moveEvent,
+                eventResize: moveEvent
+            });
+
+            calendar.render();
+
+            mobileQuery.addEventListener('change', (query) => {
+                calendar.setOption('headerToolbar', query.matches ? toolbars.mobile : toolbars.desktop);
+                calendar.setOption('footerToolbar', query.matches ? { center: 'dayGridMonth,timeGridDay,listWeek' } : false);
+                calendar.changeView(query.matches ? 'listWeek' : 'timeGridWeek');
+            });
+
+            $(window).on('resize', () => calendar.updateSize());
+
+            $('#btnNewReservation').on('click', () => {
+                const start = new Date();
+                start.setMinutes(0, 0, 0);
+                start.setHours(start.getHours() + 1);
+                const end = new Date(start);
+                end.setHours(start.getHours() + 2);
+                openNew(start, end);
+            });
+
+            $('#btnSaveReservation').on('click', () => form.trigger('submit'));
+
+            form.on('submit', (event) => {
+                event.preventDefault();
+                const date = $('#date').val();
+                save($('#reservationId').val(), {
+                    roomId: Number($('#roomId').val()) || 0,
+                    groupId: Number($('#groupId').val()) || 0,
+                    userId: Number($('#userId').val()) || 0,
+                    start: `${date}T${$('#startTime').val()}:00`,
+                    end: `${date}T${$('#endTime').val()}:00`
+                });
+            });
+
+            $('#btnDeleteReservation').on('click', () => {
+                const id = $('#reservationId').val();
+                window.confirmDelete(() => {
+                    $.ajax({
+                        url: `/reservation/${id}`,
+                        type: 'DELETE',
+                        beforeSend: window.loading.show,
+                        success: (message) => {
+                            modal.modal('hide');
+                            calendar.refetchEvents();
+                            window.toastMessage.success(message);
+                        },
+                        error: window.toastMessage.error,
+                        complete: window.loading.hide
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-calendar-week me-2 text-primary"></i>Reservations</h1>
+        <p class="page-subtitle">Room schedule by day, week or month.</p>
+    </div>
+    <div class="page-actions">
+        <div class="room-filter">
+            <select id="roomFilter" aria-label="Filter by room"></select>
+        </div>
+        @if (canManage)
+        {
+            <button type="button" class="btn btn-primary" id="btnNewReservation">
+                <i class="bi bi-plus-lg me-1"></i>New reservation
+            </button>
+        }
+    </div>
+</div>
+
+<div class="app-card calendar-card">
+    <div class="app-card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="reservation-modal" data-bs-backdrop="static" tabindex="-1"
+    aria-labelledby="reservation-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reservation-modal-label">Reservation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reservation-form" class="row g-3">
+                    <div class="col-12">
+                        <div class="select2-field">
+                            <label for="roomId">Room</label>
+                            <select id="roomId"></select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="select2-field">
+                            <label for="groupId">Group</label>
+                            <select id="groupId"></select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="select2-field">
+                            <label for="userId">Professor</label>
+                            <select id="userId"></select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="form-floating">
+                            <input type="date" class="form-control" id="date" required>
+                            <label for="date">Date</label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="form-floating">
+                            <input type="time" class="form-control" id="startTime" step="900" required>
+                            <label for="startTime">Start</label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="form-floating">
+                            <input type="time" class="form-control" id="endTime" step="900" required>
+                            <label for="endTime">End</label>
+                        </div>
+                    </div>
+                    <input type="hidden" id="reservationId" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger me-auto d-none" id="btnDeleteReservation">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveReservation">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -29,7 +29,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("professor", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Professor.ToString()))
     .AddPolicy("manager", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Manager.ToString()))
-    .AddPolicy("admin", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Admin.ToString()));
+    .AddPolicy("admin", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Admin.ToString()))
+    .AddPolicy("scheduler", policy => policy.RequireClaim(ClaimTypes.Role, UserType.Admin.ToString(), UserType.Manager.ToString()));
 
 
 builder.Services.AddHttpContextAccessor();

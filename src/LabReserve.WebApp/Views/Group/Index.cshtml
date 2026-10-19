@@ -1,0 +1,74 @@
+@{
+    ViewBag.Title = "Groups";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            window.select2.remote('#courseId', '/group/courses', {
+                dropdownParent: $('#group-form-modal'),
+                placeholder: 'Select a course'
+            });
+
+            const table = window.tables.init('group-table', [
+                { data: 'name', title: 'Name', responsivePriority: 1 },
+                { data: 'course.name', title: 'Course', defaultContent: '-' }
+            ], '/group/list');
+
+            window.forms.setupEntityTable(table, 'group');
+
+            $('#group-form').on('form:loaded', function (event, group) {
+                if (group.course)
+                    window.select2.setSelected('#courseId', [{ id: group.course.id, text: group.course.name }]);
+            });
+        });
+    </script>
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="bi bi-collection me-2 text-primary"></i>Groups</h1>
+        <p class="page-subtitle">Classes linked to a course.</p>
+    </div>
+    <div class="page-actions">
+        <button type="button" class="btn btn-primary" data-table-add="group-table">
+            <i class="bi bi-plus-lg me-1"></i>New group
+        </button>
+    </div>
+</div>
+
+<div class="app-card">
+    <div class="app-card-body">
+        <table id="group-table"></table>
+    </div>
+</div>
+
+<div class="modal fade" id="group-form-modal" data-entity-label="group" data-bs-backdrop="static" tabindex="-1"
+    aria-labelledby="group-form-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="group-form-modal-label">Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="group-form" class="d-grid gap-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Name" maxlength="50" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="select2-field">
+                        <label for="courseId">Course</label>
+                        <select id="courseId" name="courseId" data-type="number"></select>
+                    </div>
+                    <input type="hidden" name="id" id="id" data-type="number" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitForm">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
